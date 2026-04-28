@@ -390,7 +390,9 @@ export default function CheckoutClient({ addresses, cartTotal, shippingFee, cart
             />
             <button
               type="button"
-              onClick={applyPromoCode}
+              onClick={() => {
+                applyPromoCode();
+              }}
               disabled={applyingPromo || loading}
               className="rounded-lg border border-slate-300 px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
             >

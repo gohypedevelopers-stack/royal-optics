@@ -308,7 +308,7 @@ export default function LensSelector({
   function validateBeforeAdd(activeMode: string) {
     if (isContact) {
       if (!rightPower || !leftPower) {
-        toast.error("Right aur Left Eye power select karo");
+        toast.error("Select power for both right and left eyes");
         return false;
       }
       return true;
@@ -316,21 +316,21 @@ export default function LensSelector({
 
     if (isSunglasses) {
       if (!activeMode) {
-        toast.error("Lens option select karo");
+        toast.error("Select a lens option");
         return false;
       }
       if (activeMode === "ONLY_SUNGLASS") return true;
       if (activeMode === "PRESCRIPTION") {
         if (!prescriptionType) {
-          toast.error("Prescription type select karo");
+          toast.error("Select a prescription type");
           return false;
         }
         if (!hasFullPrescription(prescription, false)) {
-          toast.error("Prescription details complete bharo");
+          toast.error("Complete all prescription details");
           return false;
         }
         if (!lensOptionKey) {
-          toast.error("Lens type select karo");
+          toast.error("Select a lens type");
           return false;
         }
       }
@@ -339,40 +339,40 @@ export default function LensSelector({
 
     if (isEyeglasses) {
       if (!activeMode) {
-        toast.error("Lens option select karo");
+        toast.error("Select a lens option");
         return false;
       }
       if (activeMode === "ONLY_FRAME") return true;
       if (activeMode === "READER") {
         if (!readerRight || !readerLeft) {
-          toast.error("Reader strength select karo");
+          toast.error("Select reader strength");
           return false;
         }
         if (!lensOptionKey) {
-          toast.error("Lens type select karo");
+          toast.error("Select a lens type");
           return false;
         }
         return true;
       }
       if (activeMode === "NON_RX") {
         if (!readerRight || !readerLeft) {
-          toast.error("Strength select karo");
+          toast.error("Select strength");
           return false;
         }
         if (!lensOptionKey) {
-          toast.error("Lens package select karo");
+          toast.error("Select a lens package");
           return false;
         }
         return true;
       }
       if (activeMode === "PRESCRIPTION") {
         if (!lensOptionKey) {
-          toast.error("Lens package select karo");
+          toast.error("Select a lens package");
           return false;
         }
         const needsAdd = prescriptionType === "bifocal" || prescriptionType === "progressive";
         if (!hasFullPrescription(prescription, needsAdd)) {
-          toast.error("Prescription details complete bharo");
+          toast.error("Complete all prescription details");
           return false;
         }
         return true;
@@ -785,7 +785,7 @@ export default function LensSelector({
               type="button"
               onClick={() => {
                 if (!hasFullPrescription(prescription, false)) {
-                  toast.error("Prescription details complete bharo");
+                  toast.error("Complete all prescription details");
                   return;
                 }
                 setSunglassProceeded(true);
@@ -1119,7 +1119,7 @@ function renderEyewearDrawer() {
                 type="button"
                 onClick={() => {
                   if (!hasFullPrescription(prescription, needsAdd)) {
-                    toast.error("Prescription details complete bharo");
+                    toast.error("Complete all prescription details");
                     return;
                   }
                   setEyewearProceeded(true);
@@ -1183,7 +1183,7 @@ function renderEyewearDrawer() {
                 type="button"
                 onClick={() => {
                   if (!readerRight || !readerLeft) {
-                    toast.error("Strength select karo");
+                    toast.error("Select strength");
                     return;
                   }
                   setEyewearProceeded(true);

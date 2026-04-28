@@ -211,7 +211,7 @@ export default function CheckoutClient({ addresses, cartTotal, shippingFee, cart
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-bold text-slate-900">Shipping Details</h2>
-            <p className="mt-1 text-sm text-slate-600">Select saved address ya naya address add karo.</p>
+            <p className="mt-1 text-sm text-slate-600">Select a saved address or add a new one.</p>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
             <MapPin className="h-3.5 w-3.5" />

@@ -183,9 +183,6 @@ export default function CartList({ items }: { items: CartItem[] }) {
             <span>Shipping</span>
             <strong>{shippingFee > 0 ? formatINR(shippingFee) : "Free"}</strong>
           </p>
-          <p className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700">
-            Discount code checkout page par apply hoga.
-          </p>
           <p className="flex items-center justify-between border-t border-slate-200 pt-3 text-base">
             <span>Grand Total</span>
             <strong>{formatINR(grandTotal)}</strong>

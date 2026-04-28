@@ -29,8 +29,7 @@ export default async function AdminContentPage() {
     <div className="space-y-6">
       <h1 className="font-serif text-3xl font-bold text-slate-900">Content Management</h1>
       <p className="text-sm text-slate-600">
-        Website ka major static content yahan se dynamic control hoga. Changes save karte hi storefront pages update ho
-        jayenge.
+        Manage major static website content from here. Storefront pages update as soon as changes are saved.
       </p>
 
       <section className="rounded-xl border bg-white p-5">
@@ -88,7 +87,7 @@ export default async function AdminContentPage() {
       ].map((item) => (
         <section key={item.key} className="rounded-xl border bg-white p-5">
           <h2 className="text-lg font-semibold text-slate-900">{item.title}</h2>
-          <p className="mt-1 text-xs text-slate-500">JSON structure same rakho. Invalid JSON save nahi hoga.</p>
+          <p className="mt-1 text-xs text-slate-500">Keep the JSON structure intact. Invalid JSON will not be saved.</p>
           <form action={upsertContentJsonAction} className="mt-4 space-y-3">
             <input type="hidden" name="key" value={item.key} />
             <textarea
@@ -107,4 +106,3 @@ export default async function AdminContentPage() {
     </div>
   );
 }
-

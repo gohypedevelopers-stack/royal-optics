@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { Check, PhoneCall, X } from "lucide-react";
 import { toast } from "sonner";
 import {
+  BIFOCAL_PROGRESSIVE_ADD_RANGE,
   EYEGLASS_NON_RX_OPTIONS,
   EYEGLASS_PRESCRIPTION_OPTIONS,
-  EYEWEAR_ADD_RANGE,
   EYEWEAR_AXIS_RANGE,
   EYEWEAR_CYL_RANGE,
   EYEWEAR_SPH_RANGE,
@@ -75,7 +75,7 @@ const lensTintSwatches = [
 ];
 
 type SunglassStep = "option" | "prescriptionType" | "prescriptionForm" | "lensType";
-type SunglassLensSelection = "tint" | "daynight" | null;
+type SunglassLensSelection = "tint" | "polarized" | "daynight" | null;
 type EyewearStep = "option" | "prescriptionType" | "prescriptionForm" | "strengthForm" | "lensType";
 
 function groupLensOptions(options: LensOption[]) {
@@ -90,11 +90,11 @@ function groupLensOptions(options: LensOption[]) {
   for (const option of options) {
     const key = option.key.toLowerCase();
     if (key.includes("clear")) {
-      ensureGroup("clear", "Clear & Anti Reflection Lenses").items.push(option);
-    } else if (key.includes("blublock")) {
-      ensureGroup("blublock", "Blu Block Lenses").items.push(option);
+      ensureGroup("clear", "Normal Lenses").items.push(option);
     } else if (key.includes("poly")) {
       ensureGroup("poly", "Poly Carbonate Lenses").items.push(option);
+    } else if (key.includes("blublock")) {
+      ensureGroup("blublock", "Blu Block Lenses").items.push(option);
     } else if (key.includes("tinted") || key.includes("drv_tinted_uv")) {
       ensureGroup("tinted", "Driving Lenses (Tinted UV)").items.push(option);
     } else if (key.includes("polarized")) {
@@ -169,7 +169,8 @@ export default function LensSelector({
   const [prescriptionType, setPrescriptionType] = useState("single_vision");
   const [lensOptionKey, setLensOptionKey] = useState("");
   const [tintColor, setTintColor] = useState(lensTintSwatches[0].hex);
-  const [tintDensity, setTintDensity] = useState("50");
+  const [tintDensity, setTintDensity] = useState(TINT_DENSITIES[0] || "Light");
+  const [dayNightColor, setDayNightColor] = useState<"Grey" | "Brown">("Grey");
   const [prescription, setPrescription] = useState<EyePrescription>(defaultPrescription);
   const [readerRight, setReaderRight] = useState("");
   const [readerLeft, setReaderLeft] = useState("");
@@ -203,7 +204,8 @@ export default function LensSelector({
     setSubmitting(false);
     setLensOptionKey("");
     setTintColor(lensTintSwatches[0].hex);
-    setTintDensity("50");
+    setTintDensity(TINT_DENSITIES[0] || "Light");
+    setDayNightColor("Grey");
     setSunglassLensSelection(null);
     setReaderRight("");
     setReaderLeft("");
@@ -251,22 +253,35 @@ export default function LensSelector({
     [sunglassOptions],
   );
 
+  const sunglassPolarizedOptions = useMemo(
+    () => sunglassOptions.filter((option) => option.key.toLowerCase().includes("polarized")),
+    [sunglassOptions],
+  );
+
   const sunglassDayNightOptions = useMemo(
-    () => sunglassOptions.filter((option) => !option.requiresTint),
+    () => sunglassOptions.filter((option) => option.key.toLowerCase().includes("day_night")),
     [sunglassOptions],
   );
 
   useEffect(() => {
     if (!isSunglasses || sunglassStep !== "lensType" || mode !== "PRESCRIPTION" || lensOptionKey) return;
     const initial =
-      sunglassDayNightOptions[0]?.key || sunglassTintOption?.key || sunglassOptions[0]?.key || "";
+      sunglassTintOption?.key ||
+      sunglassPolarizedOptions[0]?.key ||
+      sunglassDayNightOptions[0]?.key ||
+      sunglassOptions[0]?.key ||
+      "";
     if (initial) {
       setLensOptionKey(initial);
-      setSunglassLensSelection(
-        sunglassDayNightOptions.some((item) => item.key === initial) ? "daynight" : "tint",
-      );
+      if (sunglassDayNightOptions.some((item) => item.key === initial)) {
+        setSunglassLensSelection("daynight");
+      } else if (sunglassPolarizedOptions.some((item) => item.key === initial)) {
+        setSunglassLensSelection("polarized");
+      } else {
+        setSunglassLensSelection("tint");
+      }
     }
-  }, [isSunglasses, sunglassStep, mode, lensOptionKey, sunglassDayNightOptions, sunglassTintOption, sunglassOptions]);
+  }, [isSunglasses, sunglassStep, mode, lensOptionKey, sunglassDayNightOptions, sunglassPolarizedOptions, sunglassTintOption, sunglassOptions]);
 
   const selectedOption = useMemo(() => {
     if (isSunglasses) return sunglassOptions.find((option) => option.key === lensOptionKey);
@@ -406,6 +421,9 @@ export default function LensSelector({
       lensDetails.tintColorHex = tintColor;
       lensDetails.tintDensity = tintDensity;
     }
+    if (lensOptionKey.toLowerCase().includes("day_night")) {
+      lensDetails.dayNightColor = dayNightColor;
+    }
 
     if (isContact) {
       lensDetails.rightPower = rightPower;
@@ -462,7 +480,6 @@ export default function LensSelector({
       } else {
         toast.success("Added to cart");
         onClose();
-        router.push("/cart");
       }
       router.refresh();
     } catch (error: any) {
@@ -849,6 +866,35 @@ export default function LensSelector({
               </div>
             )}
 
+            {!!sunglassPolarizedOptions.length && (
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-slate-700">Polarized</p>
+                {sunglassPolarizedOptions.map((option, index) => (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => {
+                      setLensOptionKey(option.key);
+                      setSunglassLensSelection("polarized");
+                    }}
+                    className="flex w-full items-center justify-between rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium text-slate-800"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <span
+                        className={`h-4 w-4 rounded-full border ${
+                          sunglassLensSelection === "polarized" && lensOptionKey === option.key
+                            ? "border-slate-700 bg-slate-700"
+                            : "border-slate-400 bg-white"
+                        }`}
+                      />
+                      {sunglassesQuickLabel(option.label, index)}
+                    </span>
+                    <strong>{formatINR(lensPrices[option.key] || 0)}</strong>
+                  </button>
+                ))}
+              </div>
+            )}
+
             {!!sunglassDayNightOptions.length && (
               <div className="space-y-2">
                 <p className="text-sm font-semibold text-slate-700">Day & Night</p>
@@ -875,6 +921,27 @@ export default function LensSelector({
                     <strong>{formatINR(lensPrices[option.key] || 0)}</strong>
                   </button>
                 ))}
+                {sunglassLensSelection === "daynight" && (
+                  <div className="rounded-md border border-slate-200 bg-white p-2.5">
+                    <p className="mb-2 text-xs font-semibold text-slate-600">Color</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(["Grey", "Brown"] as const).map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => setDayNightColor(color)}
+                          className={`rounded border px-2 py-1.5 text-xs font-semibold ${
+                            dayNightColor === color
+                              ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                              : "border-slate-300 bg-white text-slate-700"
+                          }`}
+                        >
+                          {color}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -894,6 +961,7 @@ export default function LensSelector({
   }
 function renderEyewearDrawer() {
     const needsAdd = prescriptionType === "bifocal" || prescriptionType === "progressive";
+    const addOptions = BIFOCAL_PROGRESSIVE_ADD_RANGE;
     const groupedOptions = groupLensOptions(eyewearOptions);
 
     function topOptionButton(label: string, targetMode: string, onClick: () => void) {
@@ -976,7 +1044,7 @@ function renderEyewearDrawer() {
                     setPrescription((prev) => ({ ...prev, [side]: { ...prev[side], add: event.target.value } }))
                   }
                 >
-                  {EYEWEAR_ADD_RANGE.map((value) => (
+                  {addOptions.map((value) => (
                     <option key={value} value={value}>
                       {value}
                     </option>
@@ -991,13 +1059,14 @@ function renderEyewearDrawer() {
 
     function renderPrescriptionSummary() {
       if (mode === "READER" || mode === "NON_RX") {
+        const strengthLabel = mode === "READER" ? "ADD" : "SS";
         return (
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
             <p>
-              <strong>Right Eye SS:</strong> {readerRight || "+0.00"}
+              <strong>Right Eye {strengthLabel}:</strong> {readerRight || "+0.00"}
             </p>
             <p className="mt-1">
-              <strong>Left Eye SS:</strong> {readerLeft || "+0.00"}
+              <strong>Left Eye {strengthLabel}:</strong> {readerLeft || "+0.00"}
             </p>
           </div>
         );
@@ -1053,8 +1122,8 @@ function renderEyewearDrawer() {
                 setReaderRight("+0.00");
                 setReaderLeft("+0.00");
                 setLensOptionKey("");
-                setEyewearProceeded(false);
-                setEyewearStep("strengthForm");
+                setEyewearProceeded(true);
+                setEyewearStep("lensType");
               })}
 
               {topOptionButton("Only Frame", "ONLY_FRAME", () => addToCart("ONLY_FRAME"))}
@@ -1147,10 +1216,12 @@ function renderEyewearDrawer() {
               </button>
               <h4 className="text-base font-semibold text-slate-800">STEP 2 - Select Strength (SS)</h4>
               <div className="rounded-md border border-slate-200 p-3">
-                <p className="mb-2 text-sm font-semibold text-slate-800">{mode === "READER" ? "Right & Left (Reading Power)" : "Zero Power"}</p>
+                <p className="mb-2 text-sm font-semibold text-slate-800">
+                  {mode === "READER" ? "Right & Left (Bifocal Add Power)" : "Zero Power"}
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="mb-1 block text-xs text-slate-500">Right Eye SS</label>
+                    <label className="mb-1 block text-xs text-slate-500">{mode === "READER" ? "Right Eye ADD" : "Right Eye SS"}</label>
                     <select
                       value={readerRight}
                       onChange={(event) => setReaderRight(event.target.value)}
@@ -1164,7 +1235,7 @@ function renderEyewearDrawer() {
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs text-slate-500">Left Eye SS</label>
+                    <label className="mb-1 block text-xs text-slate-500">{mode === "READER" ? "Left Eye ADD" : "Left Eye SS"}</label>
                     <select
                       value={readerLeft}
                       onChange={(event) => setReaderLeft(event.target.value)}
@@ -1200,7 +1271,7 @@ function renderEyewearDrawer() {
             <div className="space-y-3">
               <button
                 type="button"
-                onClick={() => setEyewearStep(mode === "PRESCRIPTION" ? "prescriptionForm" : "strengthForm")}
+                onClick={() => setEyewearStep(mode === "PRESCRIPTION" ? "prescriptionForm" : mode === "READER" ? "strengthForm" : "option")}
                 className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200"
               >
                 &lt;- Back
@@ -1265,8 +1336,8 @@ function renderEyewearDrawer() {
                               </div>
 
                               <div className="mt-2">
-                                <p className="mb-1 text-xs font-semibold text-slate-600">Darkness</p>
-                                <div className="grid grid-cols-4 gap-1.5">
+                                <p className="mb-1 text-xs font-semibold text-slate-600">Tint Type</p>
+                                <div className="grid grid-cols-2 gap-1.5">
                                   {TINT_DENSITIES.map((density) => (
                                     <button
                                       key={density}
@@ -1281,7 +1352,7 @@ function renderEyewearDrawer() {
                                           : "border-slate-300 bg-white text-slate-700"
                                       }`}
                                     >
-                                      {density}%
+                                      {density}
                                     </button>
                                   ))}
                                 </div>

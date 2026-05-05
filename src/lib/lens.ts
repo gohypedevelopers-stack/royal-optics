@@ -44,7 +44,10 @@ export const EYEWEAR_SPH_RANGE = generateSignedRange(-10, 6, 0.25);
 export const EYEWEAR_CYL_RANGE = generateSignedRange(-4, 4, 0.25);
 export const EYEWEAR_AXIS_RANGE = generateWholeNumberRange(0, 180);
 export const EYEWEAR_ADD_RANGE = generateSignedRange(0, 3, 0.25);
-export const READER_SS_RANGE = generateSignedRange(0.5, 4, 0.25);
+export const BIFOCAL_PROGRESSIVE_ADD_RANGE = EYEWEAR_ADD_RANGE.filter(
+  (value) => !["+0.25", "+0.50", "+0.75"].includes(value),
+);
+export const READER_SS_RANGE = BIFOCAL_PROGRESSIVE_ADD_RANGE;
 export const NON_RX_SS_RANGE = ["+0.00"];
 
 export const CONTACT_POWER_RANGES = {
@@ -65,12 +68,14 @@ export function resolveSphRange(rangeKey?: string | null) {
 }
 
 export const TINT_COLORS = ["Grey", "Green", "Brown", "Blue"];
-export const TINT_DENSITIES = ["25", "50", "75", "90"];
+export const TINT_DENSITIES = ["Light", "Dark"];
 
 export const EYEGLASS_NON_RX_OPTIONS: LensOption[] = [
   { key: "nonrx_clear_basic", label: "Basic Non-Anti-Reflect Lenses" },
   { key: "nonrx_clear_premium", label: "Anti-Reflect Lenses" },
+  { key: "nonrx_poly_ar", label: "Anti-Reflect Polycarbonate Lenses" },
   { key: "nonrx_blublock_basic", label: "Blu-Block Lenses" },
+  { key: "nonrx_poly_blublock", label: "Blu-Block Anti-Reflect Polycarbonate Lenses" },
   { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
   { key: "drv_polarized_basic", label: "Polarized Lenses" },
   { key: "drv_day_night_basic", label: "Night Drive Lenses in Yellow Tinted" },
@@ -127,12 +132,15 @@ export const SUNGLASS_PRESCRIPTION_OPTIONS: Record<string, LensOption[]> = {
     { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
     { key: "drv_polarized_basic", label: "Polarized Basic" },
     { key: "drv_polarized_premium", label: "Polarized Advance" },
+    { key: "drv_day_night_basic", label: "Day & Night Lenses" },
   ],
-  bifocal: [{ key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true }],
+  bifocal: [
+    { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
+    { key: "drv_day_night_basic", label: "Day & Night Lenses" },
+  ],
   progressive: [
     { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
     { key: "drv_polarized_basic", label: "Polarized Basic" },
-    { key: "drv_polarized_premium", label: "Polarized Advance" },
     { key: "drv_day_night_basic", label: "Night Drive Yellow" },
   ],
 };

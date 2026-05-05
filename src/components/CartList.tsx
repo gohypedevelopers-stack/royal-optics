@@ -92,8 +92,12 @@ export default function CartList({ items }: { items: CartItem[] }) {
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
-                <tr key={item.id} className="border-t border-slate-200 align-top">
+              {items.map((item) => {
+                const isContactLens = item.product.customizationType === "CONTACT_LENSES";
+                const displayQuantity = isContactLens ? 1 : item.quantity;
+
+                return (
+                  <tr key={item.id} className="border-t border-slate-200 align-top">
                   <td className="px-3 py-3">
                     <div className="flex min-w-[240px] items-start gap-3">
                       <div className="relative h-16 w-16 overflow-hidden rounded-md border border-slate-200">
@@ -117,7 +121,11 @@ export default function CartList({ items }: { items: CartItem[] }) {
                       const selectionRows = buildLensDisplayRows({
                         lensDetails: item.lensDetails,
                         selectedColor: item.selectedColor,
-                      }).filter((row) => row.label !== "Frame Color");
+                      }).filter((row) => {
+                        if (row.label === "Frame Color") return false;
+                        if (isContactLens && (row.label === "Right Boxes" || row.label === "Left Boxes")) return false;
+                        return true;
+                      });
 
                       if (!selectionRows.length) {
                         return <p className="min-w-[180px] text-xs text-slate-700">Standard configuration</p>;
@@ -139,21 +147,31 @@ export default function CartList({ items }: { items: CartItem[] }) {
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        disabled={isContactLens}
                         className="rounded p-1 hover:bg-slate-100"
                       >
                         <Minus size={15} />
                       </button>
-                      <span className="w-8 text-center text-sm font-semibold">{item.quantity}</span>
+                      <span className="w-8 text-center text-sm font-semibold">{displayQuantity}</span>
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        disabled={isContactLens}
                         className="rounded p-1 hover:bg-slate-100"
                       >
                         <Plus size={15} />
                       </button>
                     </div>
                   </td>
-                  <td className="px-3 py-3 font-medium text-slate-700">{formatINR(Number(item.unitPrice))}</td>
+                  <td className="px-3 py-3 font-medium text-slate-700">
+                    {isContactLens ? (
+                      <span>
+                        {formatINR(Number(item.unitPrice))} <span className="text-xs text-slate-500">x 2 (Contact Lens)</span>
+                      </span>
+                    ) : (
+                      formatINR(Number(item.unitPrice))
+                    )}
+                  </td>
                   <td className="px-3 py-3 font-semibold text-slate-900">{formatINR(Number(item.lineTotal))}</td>
                   <td className="px-3 py-3">
                     <button
@@ -164,8 +182,9 @@ export default function CartList({ items }: { items: CartItem[] }) {
                       <Trash2 size={14} /> Remove
                     </button>
                   </td>
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

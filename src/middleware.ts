@@ -23,7 +23,8 @@ export async function middleware(request: NextRequest) {
   const userProtected = ["/checkout", "/orders", "/account"];
   if (userProtected.some((path) => pathname.startsWith(path))) {
     if (!session || session.role !== "USER") {
-      return NextResponse.redirect(new URL("/login?redirect=" + encodeURIComponent(pathname), request.url));
+      const redirectTarget = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+      return NextResponse.redirect(new URL("/login?redirect=" + encodeURIComponent(redirectTarget), request.url));
     }
   }
 

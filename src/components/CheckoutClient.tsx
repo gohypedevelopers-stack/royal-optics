@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, MapPin, Percent, ShieldCheck, Truck, Wallet } from "lucide-react";
 import { toast } from "sonner";
@@ -43,6 +43,8 @@ export default function CheckoutClient({ addresses, cartTotal, shippingFee, cart
   const [applyingPromo, setApplyingPromo] = useState(false);
   const [summary, setSummary] = useState({
     subTotal: cartTotal,
+    promoDiscount: 0,
+    prepaidDiscount: 0,
     discount: 0,
     shippingFee,
     grandTotal: cartTotal + shippingFee,
@@ -78,7 +80,7 @@ export default function CheckoutClient({ addresses, cartTotal, shippingFee, cart
     return !!selectedAddressId;
   }, [cartItemsCount, newAddress, selectedAddressId, useNewAddress]);
 
-  async function applyPromoCode(nextCode?: string) {
+  async function applyPromoCode(nextCode?: string, options?: { silent?: boolean }) {
     setApplyingPromo(true);
 
     try {
@@ -86,7 +88,7 @@ export default function CheckoutClient({ addresses, cartTotal, shippingFee, cart
       const response = await fetch("/api/orders/preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ promoCode: normalizedPromoCode || undefined }),
+        body: JSON.stringify({ promoCode: normalizedPromoCode || undefined, paymentMethod }),
       });
 
       const data = await response.json();
@@ -96,25 +98,38 @@ export default function CheckoutClient({ addresses, cartTotal, shippingFee, cart
 
       setSummary({
         subTotal: Number(data.summary?.subTotal || cartTotal),
+        promoDiscount: Number(data.summary?.promoDiscount || 0),
+        prepaidDiscount: Number(data.summary?.prepaidDiscount || 0),
         discount: Number(data.summary?.discount || 0),
         shippingFee: Number(data.summary?.shippingFee || shippingFee),
         grandTotal: Number(data.summary?.grandTotal || cartTotal + shippingFee),
         appliedPromoCode: data.summary?.appliedPromoCode || null,
       });
 
-      toast.success(normalizedPromoCode ? "Promo code applied" : "Promo code removed");
+      if (!options?.silent) {
+        toast.success(normalizedPromoCode ? "Promo code applied" : "Promo code removed");
+      }
     } catch (error: any) {
       setSummary((prev) => ({
         ...prev,
+        promoDiscount: 0,
+        prepaidDiscount: 0,
         discount: 0,
         grandTotal: Math.max(0, cartTotal + prev.shippingFee),
         appliedPromoCode: null,
       }));
-      toast.error(error.message || "Unable to apply promo code");
+      if (!options?.silent) {
+        toast.error(error.message || "Unable to apply promo code");
+      }
     } finally {
       setApplyingPromo(false);
     }
   }
+
+  useEffect(() => {
+    applyPromoCode(undefined, { silent: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paymentMethod]);
 
   async function placeOrder() {
     if (!canSubmit) return;
@@ -355,6 +370,7 @@ export default function CheckoutClient({ addresses, cartTotal, shippingFee, cart
               <div>
                 <p className="font-semibold text-slate-900">Razorpay Prepaid</p>
                 <p className="mt-1 text-xs text-slate-600">Card, UPI, Wallet, Netbanking. Fast and secure.</p>
+                <p className="mt-1 text-xs font-semibold text-emerald-700">10% off on prepaid payment</p>
               </div>
             </div>
           </button>
@@ -422,10 +438,16 @@ export default function CheckoutClient({ addresses, cartTotal, shippingFee, cart
             <span>Items ({cartItemsCount})</span>
             <strong>{formatINR(summary.subTotal)}</strong>
           </p>
-          {summary.discount > 0 && (
+          {summary.promoDiscount > 0 && (
             <p className="flex items-center justify-between text-emerald-700">
-              <span>Discount</span>
-              <strong>-{formatINR(summary.discount)}</strong>
+              <span>Promo Discount</span>
+              <strong>-{formatINR(summary.promoDiscount)}</strong>
+            </p>
+          )}
+          {summary.prepaidDiscount > 0 && (
+            <p className="flex items-center justify-between text-emerald-700">
+              <span>Prepaid Discount (10%)</span>
+              <strong>-{formatINR(summary.prepaidDiscount)}</strong>
             </p>
           )}
           <p className="flex items-center justify-between">

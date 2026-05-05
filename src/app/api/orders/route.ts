@@ -4,7 +4,7 @@ import { PaymentMethod, PaymentProvider } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireUserSession } from "@/lib/auth";
 import { checkoutSchema } from "@/lib/validators";
-import { evaluatePromoCode } from "@/lib/pricing";
+import { computePrepaidDiscount, evaluatePromoCode } from "@/lib/pricing";
 import { computeDeliveryFee } from "@/lib/shipping";
 import { extractOrderLensFields } from "@/lib/lens-display";
 
@@ -67,6 +67,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: promoError }, { status: 400 });
     }
 
+    const paymentMethod = payload.paymentMethod as PaymentMethod;
+    const baseAfterPromo = Math.max(0, subTotal - discount);
+    const prepaidDiscount = computePrepaidDiscount(paymentMethod, baseAfterPromo);
+    const discountTotal = discount + prepaidDiscount;
+
     let addressId = payload.addressId || null;
 
     if (!addressId && payload.newAddress) {
@@ -97,9 +102,7 @@ export async function POST(request: Request) {
         lensDetails: item.lensDetails,
       })),
     );
-    const grandTotal = Math.max(0, subTotal - discount + shippingFee);
-
-    const paymentMethod = payload.paymentMethod as PaymentMethod;
+    const grandTotal = Math.max(0, subTotal - discountTotal + shippingFee);
     const initialStatus = paymentMethod === PaymentMethod.RAZORPAY ? "PENDING_PAYMENT" : "PENDING";
 
     const order = await prisma.$transaction(async (tx) => {
@@ -113,7 +116,7 @@ export async function POST(request: Request) {
           paymentStatus: "PENDING",
           paymentMethod,
           subTotal,
-          discountTotal: discount,
+          discountTotal,
           shippingFee,
           grandTotal,
           shippingSnapshot: {

@@ -1,6 +1,15 @@
 import { PromoDiscountType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
+export const PREPAID_PAYMENT_DISCOUNT_PERCENT = 10;
+
+export function computePrepaidDiscount(paymentMethod: string | null | undefined, amount: number) {
+  if (paymentMethod !== "RAZORPAY") return 0;
+  if (amount <= 0) return 0;
+  const discount = (amount * PREPAID_PAYMENT_DISCOUNT_PERCENT) / 100;
+  return Math.max(0, Math.min(discount, amount));
+}
+
 export async function getLensPriceMap() {
   const rows = await prisma.lensPrice.findMany({ where: { isActive: true } });
   return rows.reduce<Record<string, number>>((acc, row) => {

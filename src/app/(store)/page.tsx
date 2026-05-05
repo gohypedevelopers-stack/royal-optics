@@ -60,7 +60,7 @@ async function getTrendingProducts() {
     return await prisma.product.findMany({
       where: { status: "ACTIVE", isTrending: true },
       orderBy: { createdAt: "desc" },
-      take: 4,
+      take: 16,
       select: {
         id: true,
         slug: true,

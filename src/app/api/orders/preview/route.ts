@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUserSession } from "@/lib/auth";
-import { evaluatePromoCode } from "@/lib/pricing";
+import { computePrepaidDiscount, evaluatePromoCode } from "@/lib/pricing";
 import { computeDeliveryFee } from "@/lib/shipping";
 
 const previewSchema = z.object({
   promoCode: z.string().max(40).optional(),
+  paymentMethod: z.enum(["RAZORPAY", "COD"]).default("RAZORPAY"),
 });
 
 export async function POST(request: Request) {
@@ -37,21 +38,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: promoError }, { status: 400 });
     }
 
+    const baseAfterPromo = Math.max(0, subTotal - discount);
+    const prepaidDiscount = computePrepaidDiscount(payload.paymentMethod, baseAfterPromo);
+    const discountTotal = discount + prepaidDiscount;
+
     const shippingFee = computeDeliveryFee(
       cartItems.map((item) => ({
         customizationType: item.product.customizationType,
         lensDetails: item.lensDetails,
       })),
     );
-    const grandTotal = Math.max(0, subTotal - discount + shippingFee);
+    const grandTotal = Math.max(0, subTotal - discountTotal + shippingFee);
 
     return NextResponse.json({
       summary: {
         subTotal,
-        discount,
+        promoDiscount: discount,
+        prepaidDiscount,
+        discount: discountTotal,
         shippingFee,
         grandTotal,
         appliedPromoCode: promo?.code || null,
+        paymentMethod: payload.paymentMethod,
       },
     });
   } catch (error: any) {
@@ -65,4 +73,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 export default function LoginForm({ redirectTo }: { redirectTo: string }) {
   const router = useRouter();
+  const safeRedirect = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/";
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -30,8 +31,7 @@ export default function LoginForm({ redirectTo }: { redirectTo: string }) {
       }
 
       toast.success("Logged in successfully");
-      router.push(redirectTo);
-      router.refresh();
+      router.replace(safeRedirect);
     } catch (error: any) {
       toast.error(error.message || "Login failed");
     } finally {

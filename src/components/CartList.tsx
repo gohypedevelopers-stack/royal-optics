@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { formatINR } from "@/lib/format";
 import { buildLensDisplayRows, formatColorLabel } from "@/lib/lens-display";
 import { computeDeliveryFee } from "@/lib/shipping";
@@ -27,6 +28,7 @@ type CartItem = {
 
 export default function CartList({ items }: { items: CartItem[] }) {
   const router = useRouter();
+  const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
 
   const subTotal = items.reduce((sum, item) => sum + Number(item.lineTotal), 0);
   const shippingFee = computeDeliveryFee(
@@ -38,18 +40,27 @@ export default function CartList({ items }: { items: CartItem[] }) {
   const grandTotal = subTotal + shippingFee;
 
   async function updateQuantity(itemId: string, quantity: number) {
-    const response = await fetch("/api/cart", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cartItemId: itemId, quantity }),
-    });
+    if (quantity < 1) return;
 
-    if (!response.ok) {
-      toast.error("Failed to update quantity");
-      return;
+    setUpdatingItemId(itemId);
+    try {
+      const response = await fetch("/api/cart", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cartItemId: itemId, quantity }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to update quantity");
+      }
+
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to update quantity");
+    } finally {
+      setUpdatingItemId(null);
     }
-
-    router.refresh();
   }
 
   async function removeItem(itemId: string) {
@@ -94,7 +105,8 @@ export default function CartList({ items }: { items: CartItem[] }) {
             <tbody>
               {items.map((item) => {
                 const isContactLens = item.product.customizationType === "CONTACT_LENSES";
-                const displayQuantity = isContactLens ? 1 : item.quantity;
+                const displayQuantity = isContactLens ? Math.max(1, Math.ceil(item.quantity / 2)) : item.quantity;
+                const contactBoxes = isContactLens ? Math.max(2, item.quantity) : 0;
 
                 return (
                   <tr key={item.id} className="border-t border-slate-200 align-top">
@@ -146,18 +158,18 @@ export default function CartList({ items }: { items: CartItem[] }) {
                     <div className="inline-flex items-center gap-1 rounded-md border border-slate-300 p-1">
                       <button
                         type="button"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        disabled={isContactLens}
-                        className="rounded p-1 hover:bg-slate-100"
+                        onClick={() => updateQuantity(item.id, isContactLens ? item.quantity - 2 : item.quantity - 1)}
+                        disabled={updatingItemId === item.id || item.quantity <= (isContactLens ? 2 : 1)}
+                        className="rounded p-1 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Minus size={15} />
                       </button>
                       <span className="w-8 text-center text-sm font-semibold">{displayQuantity}</span>
                       <button
                         type="button"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        disabled={isContactLens}
-                        className="rounded p-1 hover:bg-slate-100"
+                        onClick={() => updateQuantity(item.id, isContactLens ? item.quantity + 2 : item.quantity + 1)}
+                        disabled={updatingItemId === item.id}
+                        className="rounded p-1 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Plus size={15} />
                       </button>
@@ -166,7 +178,7 @@ export default function CartList({ items }: { items: CartItem[] }) {
                   <td className="px-3 py-3 font-medium text-slate-700">
                     {isContactLens ? (
                       <span>
-                        {formatINR(Number(item.unitPrice))} <span className="text-xs text-slate-500">x 2 (Boxes)</span>
+                        {formatINR(Number(item.unitPrice))} <span className="text-xs text-slate-500">x {contactBoxes} (Boxes)</span>
                       </span>
                     ) : (
                       formatINR(Number(item.unitPrice))

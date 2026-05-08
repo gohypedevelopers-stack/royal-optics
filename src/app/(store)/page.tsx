@@ -15,6 +15,14 @@ function isSchemaMismatch(error: unknown) {
   return code === "P2021" || code === "P2022";
 }
 
+function isDatabaseUnavailable(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  const details = error as { code?: string; errorCode?: string; message?: string };
+  if (details.code === "P1001" || details.errorCode === "P1001") return true;
+  const message = String(details.message || "").toLowerCase();
+  return message.includes("can't reach database server");
+}
+
 async function getBanners() {
   try {
     return await prisma.heroBanner.findMany({
@@ -30,7 +38,7 @@ async function getBanners() {
       },
     });
   } catch (error) {
-    if (isSchemaMismatch(error)) return [];
+    if (isSchemaMismatch(error) || isDatabaseUnavailable(error)) return [];
     throw error;
   }
 }
@@ -44,6 +52,7 @@ async function getCategories() {
       take: 4,
     });
   } catch (error) {
+    if (isDatabaseUnavailable(error)) return [];
     if (!isSchemaMismatch(error)) throw error;
     const fallback = await prisma.category.findMany({
       where: { parentId: null },
@@ -60,7 +69,7 @@ async function getTrendingProducts() {
     return await prisma.product.findMany({
       where: { status: "ACTIVE", isTrending: true },
       orderBy: { createdAt: "desc" },
-      take: 16,
+      take: 24,
       select: {
         id: true,
         slug: true,
@@ -77,7 +86,7 @@ async function getTrendingProducts() {
       },
     });
   } catch (error) {
-    if (isSchemaMismatch(error)) return [];
+    if (isSchemaMismatch(error) || isDatabaseUnavailable(error)) return [];
     throw error;
   }
 }
@@ -96,6 +105,7 @@ async function getTestimonials() {
       },
     });
   } catch (error) {
+    if (isDatabaseUnavailable(error)) return [];
     if (isSchemaMismatch(error)) {
       return await prisma.testimonial.findMany({
         where: { isApproved: true },
@@ -126,7 +136,7 @@ async function getWhyChooseItems() {
       },
     });
   } catch (error) {
-    if (isSchemaMismatch(error)) return [];
+    if (isSchemaMismatch(error) || isDatabaseUnavailable(error)) return [];
     throw error;
   }
 }
@@ -232,27 +242,29 @@ export default async function HomePage() {
           {trendingProducts.length === 0 ? (
             <p className="mt-6 text-center text-sm text-slate-500">No trending products available right now.</p>
           ) : (
-            <div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
-              {trendingProducts.map((product) => (
-                <Link
-                  key={product.id}
-                  href={`/products/${product.slug}`}
-                  className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
-                >
-                  <div className="relative h-[150px] w-full overflow-hidden rounded-xl bg-slate-100 md:h-[190px]">
-                    <Image
-                      src={product.images[0]?.url || "/frame-square.png"}
-                      alt={product.images[0]?.alt || product.name}
-                      fill
-                      quality={78}
-                      sizes="(max-width: 768px) 45vw, (max-width: 1200px) 30vw, 22vw"
-                      className="object-cover transition duration-500 group-hover:scale-[1.06]"
-                    />
-                  </div>
-                  <p className="mt-3.5 line-clamp-1 text-sm font-semibold text-slate-900 md:text-base">{product.name}</p>
-                  <p className="mt-0.5 text-base font-semibold text-emerald-700">{formatINR(Number(product.price))}</p>
-                </Link>
-              ))}
+            <div className="mt-7 overflow-x-auto pb-2 [scrollbar-width:thin]">
+              <div className="flex w-max snap-x snap-mandatory gap-4 pr-2 md:gap-5">
+                {trendingProducts.map((product) => (
+                  <Link
+                    key={product.id}
+                    href={`/products/${product.slug}`}
+                    className="group block w-[170px] snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md sm:w-[210px] md:w-[240px]"
+                  >
+                    <div className="relative h-[150px] w-full overflow-hidden rounded-xl bg-slate-100 md:h-[190px]">
+                      <Image
+                        src={product.images[0]?.url || "/frame-square.png"}
+                        alt={product.images[0]?.alt || product.name}
+                        fill
+                        quality={78}
+                        sizes="(max-width: 768px) 45vw, (max-width: 1200px) 30vw, 22vw"
+                        className="object-cover transition duration-500 group-hover:scale-[1.06]"
+                      />
+                    </div>
+                    <p className="mt-3.5 line-clamp-1 text-sm font-semibold text-slate-900 md:text-base">{product.name}</p>
+                    <p className="mt-0.5 text-base font-semibold text-emerald-700">{formatINR(Number(product.price))}</p>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
         </section>

@@ -166,7 +166,7 @@ export default function CartList({ items }: { items: CartItem[] }) {
                   <td className="px-3 py-3 font-medium text-slate-700">
                     {isContactLens ? (
                       <span>
-                        {formatINR(Number(item.unitPrice))} <span className="text-xs text-slate-500">x 2 (Contact Lens)</span>
+                        {formatINR(Number(item.unitPrice))} <span className="text-xs text-slate-500">x 2 (Boxes)</span>
                       </span>
                     ) : (
                       formatINR(Number(item.unitPrice))

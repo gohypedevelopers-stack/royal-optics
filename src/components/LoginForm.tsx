@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight, Eye, EyeOff, Lock, UserCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function LoginForm({ redirectTo }: { redirectTo: string }) {
   const router = useRouter();
-  const safeRedirect = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/";
+  const searchParams = useSearchParams();
+  const requestedRedirect = searchParams.get("redirect") || redirectTo;
+  const safeRedirect = requestedRedirect && requestedRedirect.startsWith("/") ? requestedRedirect : "/";
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -31,7 +33,8 @@ export default function LoginForm({ redirectTo }: { redirectTo: string }) {
       }
 
       toast.success("Logged in successfully");
-      router.replace(safeRedirect);
+      router.refresh();
+      window.location.assign(safeRedirect);
     } catch (error: any) {
       toast.error(error.message || "Login failed");
     } finally {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Toaster } from "sonner";
+import AppToaster from "@/components/AppToaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import "../styles/globals.css";
 
@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="site-bg min-h-screen antialiased">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
-          <Toaster richColors position="top-right" />
+          <AppToaster />
         </ThemeProvider>
       </body>
     </html>

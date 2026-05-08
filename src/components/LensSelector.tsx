@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Check, PhoneCall, X } from "lucide-react";
+import { PhoneCall, X } from "lucide-react";
 import { toast } from "sonner";
 import {
   BIFOCAL_PROGRESSIVE_ADD_RANGE,
@@ -15,7 +15,6 @@ import {
   NON_RX_SS_RANGE,
   READER_SS_RANGE,
   SUNGLASS_PRESCRIPTION_OPTIONS,
-  TINT_DENSITIES,
   type LensOption,
   resolveSphRange,
 } from "@/lib/lens";
@@ -128,11 +127,14 @@ function priceForMode(mode: string, lensOptionKey: string, productPrice: number,
   return productPrice + lensPrice;
 }
 
-function sunglassesQuickLabel(label: string, idx: number) {
+function sunglassesQuickLabel(label: string, idx: number, group: "polarized" | "daynight") {
   const lower = label.toLowerCase();
   if (lower.includes("basic")) return "Basic";
-  if (lower.includes("advance") || lower.includes("premium") || lower.includes("turbo")) return "Turbo";
-  if (lower.includes("night drive")) return idx === 0 ? "Basic" : "Turbo";
+  if (lower.includes("advance") || lower.includes("premium")) {
+    return group === "polarized" ? "Advance" : "Turbo";
+  }
+  if (lower.includes("turbo")) return "Turbo";
+  if (lower.includes("day & night") || lower.includes("night drive")) return idx === 0 ? "Basic" : "Turbo";
   return label;
 }
 
@@ -169,7 +171,6 @@ export default function LensSelector({
   const [prescriptionType, setPrescriptionType] = useState("single_vision");
   const [lensOptionKey, setLensOptionKey] = useState("");
   const [tintColor, setTintColor] = useState(lensTintSwatches[0].hex);
-  const [tintDensity, setTintDensity] = useState(TINT_DENSITIES[0] || "Light");
   const [dayNightColor, setDayNightColor] = useState<"Grey" | "Brown">("Grey");
   const [prescription, setPrescription] = useState<EyePrescription>(defaultPrescription);
   const [readerRight, setReaderRight] = useState("");
@@ -178,7 +179,6 @@ export default function LensSelector({
   const [leftPower, setLeftPower] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [showAddedModal, setShowAddedModal] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -187,7 +187,7 @@ export default function LensSelector({
 
   useEffect(() => {
     if (!isMounted) return;
-    const shouldLockScroll = open || showAddedModal;
+    const shouldLockScroll = open;
     const previousOverflow = document.body.style.overflow;
     if (shouldLockScroll) {
       document.body.style.overflow = "hidden";
@@ -195,7 +195,7 @@ export default function LensSelector({
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [open, showAddedModal, isMounted]);
+  }, [open, isMounted]);
 
   useEffect(() => {
     if (!open) return;
@@ -204,7 +204,6 @@ export default function LensSelector({
     setSubmitting(false);
     setLensOptionKey("");
     setTintColor(lensTintSwatches[0].hex);
-    setTintDensity(TINT_DENSITIES[0] || "Light");
     setDayNightColor("Grey");
     setSunglassLensSelection(null);
     setReaderRight("");
@@ -340,7 +339,8 @@ export default function LensSelector({
           toast.error("Select a prescription type");
           return false;
         }
-        if (!hasFullPrescription(prescription, false)) {
+        const needsAdd = prescriptionType === "bifocal" || prescriptionType === "progressive";
+        if (!hasFullPrescription(prescription, needsAdd)) {
           toast.error("Complete all prescription details");
           return false;
         }
@@ -419,7 +419,6 @@ export default function LensSelector({
       const selectedTint = lensTintSwatches.find((swatch) => swatch.hex === tintColor);
       lensDetails.tintColor = selectedTint?.name || tintColor;
       lensDetails.tintColorHex = tintColor;
-      lensDetails.tintDensity = tintDensity;
     }
     if (lensOptionKey.toLowerCase().includes("day_night")) {
       lensDetails.dayNightColor = dayNightColor;
@@ -474,28 +473,14 @@ export default function LensSelector({
         throw new Error(data.error || "Unable to add to cart");
       }
 
-      if (isContact) {
-        onClose();
-        setShowAddedModal(true);
-      } else {
-        toast.success("Added to cart");
-        onClose();
-      }
+      toast.success("Added to cart");
+      onClose();
       router.refresh();
     } catch (error: any) {
       toast.error(error.message || "Unable to add to cart");
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function continueShopping() {
-    setShowAddedModal(false);
-  }
-
-  function goToCart() {
-    setShowAddedModal(false);
-    router.push("/cart");
   }
 
   function supportLine() {
@@ -602,6 +587,9 @@ export default function LensSelector({
   }
 
   function renderSunglassesDrawer() {
+    const needsAdd = prescriptionType === "bifocal" || prescriptionType === "progressive";
+    const addOptions = BIFOCAL_PROGRESSIVE_ADD_RANGE;
+
     return (
       <aside className="absolute right-0 top-0 z-[55] h-full w-full max-w-[340px] overflow-y-auto border-l border-slate-200 bg-white p-4 shadow-2xl">
         <div className="mb-3 flex items-start justify-between">
@@ -692,7 +680,7 @@ export default function LensSelector({
 
             <div className="rounded-md border border-slate-200 p-3">
               <p className="mb-2 text-sm font-semibold text-slate-800">Right Eye</p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className={`grid gap-2 ${needsAdd ? "grid-cols-4" : "grid-cols-3"}`}>
                 <div>
                   <label className="mb-1 block text-xs text-slate-500">SPH</label>
                   <select
@@ -741,12 +729,30 @@ export default function LensSelector({
                     ))}
                   </select>
                 </div>
+                {needsAdd && (
+                  <div>
+                    <label className="mb-1 block text-xs text-slate-500">ADD</label>
+                    <select
+                      className="w-full rounded-md border px-2 py-2 text-sm"
+                      value={prescription.right.add}
+                      onChange={(event) =>
+                        setPrescription((prev) => ({ ...prev, right: { ...prev.right, add: event.target.value } }))
+                      }
+                    >
+                      {addOptions.map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="rounded-md border border-slate-200 p-3">
               <p className="mb-2 text-sm font-semibold text-slate-800">Left Eye</p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className={`grid gap-2 ${needsAdd ? "grid-cols-4" : "grid-cols-3"}`}>
                 <div>
                   <label className="mb-1 block text-xs text-slate-500">SPH</label>
                   <select
@@ -795,13 +801,31 @@ export default function LensSelector({
                     ))}
                   </select>
                 </div>
+                {needsAdd && (
+                  <div>
+                    <label className="mb-1 block text-xs text-slate-500">ADD</label>
+                    <select
+                      className="w-full rounded-md border px-2 py-2 text-sm"
+                      value={prescription.left.add}
+                      onChange={(event) =>
+                        setPrescription((prev) => ({ ...prev, left: { ...prev.left, add: event.target.value } }))
+                      }
+                    >
+                      {addOptions.map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => {
-                if (!hasFullPrescription(prescription, false)) {
+                if (!hasFullPrescription(prescription, needsAdd)) {
                   toast.error("Complete all prescription details");
                   return;
                 }
@@ -887,7 +911,7 @@ export default function LensSelector({
                             : "border-slate-400 bg-white"
                         }`}
                       />
-                      {sunglassesQuickLabel(option.label, index)}
+                      {sunglassesQuickLabel(option.label, index, "polarized")}
                     </span>
                     <strong>{formatINR(lensPrices[option.key] || 0)}</strong>
                   </button>
@@ -916,7 +940,7 @@ export default function LensSelector({
                             : "border-slate-400 bg-white"
                         }`}
                       />
-                      {sunglassesQuickLabel(option.label, index)}
+                      {sunglassesQuickLabel(option.label, index, "daynight")}
                     </span>
                     <strong>{formatINR(lensPrices[option.key] || 0)}</strong>
                   </button>
@@ -1334,29 +1358,6 @@ function renderEyewearDrawer() {
                                   ))}
                                 </div>
                               </div>
-
-                              <div className="mt-2">
-                                <p className="mb-1 text-xs font-semibold text-slate-600">Tint Type</p>
-                                <div className="grid grid-cols-2 gap-1.5">
-                                  {TINT_DENSITIES.map((density) => (
-                                    <button
-                                      key={density}
-                                      type="button"
-                                      onClick={() => {
-                                        setLensOptionKey(option.key);
-                                        setTintDensity(density);
-                                      }}
-                                      className={`rounded border px-2 py-1 text-xs ${
-                                        active && tintDensity === density
-                                          ? "border-emerald-400 bg-emerald-50 text-emerald-700"
-                                          : "border-slate-300 bg-white text-slate-700"
-                                      }`}
-                                    >
-                                      {density}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
                             </div>
                           );
                         }
@@ -1400,53 +1401,12 @@ function renderEyewearDrawer() {
     );
   }
 
-  if (!isMounted || (!open && !showAddedModal)) return null;
+  if (!isMounted || !open) return null;
 
   const overlay = (
     <div className="fixed inset-0 z-[100]">
-      {(open || showAddedModal) && (
-        <button
-          type="button"
-          className="absolute inset-0 bg-black/45"
-          onClick={open ? onClose : continueShopping}
-          aria-label="Close overlay"
-        />
-      )}
-
+      <button type="button" className="absolute inset-0 bg-black/45" onClick={onClose} aria-label="Close overlay" />
       {open && (isContact ? renderContactDrawer() : isSunglasses ? renderSunglassesDrawer() : renderEyewearDrawer())}
-
-      {showAddedModal && (
-        <div className="absolute inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="w-full max-w-[320px] rounded-xl border border-slate-200 bg-white p-4 shadow-2xl">
-            <div className="mb-2 flex items-start justify-between">
-              <h4 className="flex items-center gap-2 text-2xl font-semibold text-emerald-700">
-                <Check size={18} /> Added to Cart!
-              </h4>
-              <button type="button" onClick={continueShopping} className="rounded p-1 text-slate-500 hover:bg-slate-100">
-                <X size={16} />
-              </button>
-            </div>
-            <p className="text-base text-slate-600">Item added successfully.</p>
-
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={continueShopping}
-                className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-              >
-                Continue Shopping
-              </button>
-              <button
-                type="button"
-                onClick={goToCart}
-                className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-              >
-                Go to Cart
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 

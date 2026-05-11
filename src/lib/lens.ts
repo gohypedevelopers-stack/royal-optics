@@ -78,6 +78,7 @@ export const EYEGLASS_NON_RX_OPTIONS: LensOption[] = [
   { key: "nonrx_poly_blublock", label: "Blu-Block Anti-Reflect Polycarbonate Lenses" },
   { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
   { key: "drv_polarized_basic", label: "Polarized Lenses" },
+  { key: "drv_night_drive_yellow", label: "Night Drive Yellow Colour" },
   { key: "drv_day_night_basic", label: "Day & Night Lenses Basic" },
   { key: "drv_day_night_turbo", label: "Day & Night Lenses Turbo" },
 ];
@@ -95,6 +96,7 @@ export const EYEGLASS_PRESCRIPTION_OPTIONS: Record<string, LensOption[]> = {
     { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
     { key: "drv_polarized_basic", label: "Polarized Lenses Basic" },
     { key: "drv_polarized_premium", label: "Polarized Lenses Advance" },
+    { key: "drv_night_drive_yellow", label: "Night Drive Yellow Colour" },
     { key: "drv_day_night_basic", label: "Day & Night Lenses Basic" },
     { key: "drv_day_night_turbo", label: "Day & Night Lenses Turbo" },
   ],

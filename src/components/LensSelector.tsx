@@ -13,7 +13,6 @@ import {
   EYEWEAR_CYL_RANGE,
   EYEWEAR_SPH_RANGE,
   NON_RX_SS_RANGE,
-  READER_SS_RANGE,
   SUNGLASS_PRESCRIPTION_OPTIONS,
   type LensOption,
   resolveSphRange,
@@ -54,8 +53,8 @@ const sunglassesDefaultPrescription: EyePrescription = {
 };
 
 const eyewearDefaultPrescription: EyePrescription = {
-  right: { sph: "0.00", cyl: "0.00", axis: "0", add: "0.00" },
-  left: { sph: "0.00", cyl: "0.00", axis: "0", add: "0.00" },
+  right: { sph: "0.00", cyl: "0.00", axis: "0", add: "" },
+  left: { sph: "0.00", cyl: "0.00", axis: "0", add: "" },
 };
 
 const lensTintSwatches = [
@@ -98,14 +97,16 @@ function groupLensOptions(options: LensOption[]) {
       ensureGroup("tinted", "Driving Lenses (Tinted UV)").items.push(option);
     } else if (key.includes("polarized")) {
       ensureGroup("polarized", "Polarized Lenses").items.push(option);
+    } else if (key.includes("night_drive")) {
+      ensureGroup("nightdrive", "Night Drive Lenses").items.push(option);
     } else if (key.includes("day_night")) {
-      ensureGroup("daynight", "Night Drive Lenses").items.push(option);
+      ensureGroup("daynight", "Day&Night").items.push(option);
     } else {
       ensureGroup("other", "Lens Options").items.push(option);
     }
   }
 
-  for (const id of ["clear", "blublock", "poly", "tinted", "polarized", "daynight", "other"]) {
+  for (const id of ["clear", "blublock", "poly", "tinted", "polarized", "nightdrive", "daynight", "other"]) {
     const row = grouped.get(id);
     if (row && row.items.length) groups.push(row);
   }
@@ -136,6 +137,36 @@ function sunglassesQuickLabel(label: string, idx: number, group: "polarized" | "
   if (lower.includes("turbo")) return "Turbo";
   if (lower.includes("day & night") || lower.includes("night drive")) return idx === 0 ? "Basic" : "Turbo";
   return label;
+}
+
+function eyewearQuickLabel(label: string, groupId: string) {
+  if (groupId !== "daynight") return label;
+  const lower = label.toLowerCase();
+  if (lower.includes("basic")) return "Basic";
+  if (lower.includes("turbo") || lower.includes("advance") || lower.includes("premium")) return "Turbo";
+  return label;
+}
+
+function toTitleCase(value: string) {
+  return value
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function drivingLabelFromKey(key: string) {
+  const normalized = key.toLowerCase();
+  if (normalized === "drv_night_drive_yellow") return "Night Drive Yellow Colour";
+  if (normalized.startsWith("drv_day_night_")) {
+    const suffix = normalized.replace("drv_day_night_", "").replaceAll("_", " ");
+    return `Day & Night Lenses ${toTitleCase(suffix)}`.trim();
+  }
+  if (normalized.startsWith("drv_night_drive_")) {
+    const suffix = normalized.replace("drv_night_drive_", "").replaceAll("_", " ");
+    return `Night Drive ${toTitleCase(suffix)}`.trim();
+  }
+  return toTitleCase(normalized.replace(/^drv_/, "").replaceAll("_", " "));
 }
 
 function modeLabel(mode: string) {
@@ -236,11 +267,30 @@ export default function LensSelector({
 
   const eyewearOptions = useMemo(() => {
     if (!isEyeglasses) return [];
-    if (mode === "READER") return EYEGLASS_PRESCRIPTION_OPTIONS.reader;
-    if (mode === "NON_RX") return EYEGLASS_NON_RX_OPTIONS;
-    if (mode === "PRESCRIPTION") return EYEGLASS_PRESCRIPTION_OPTIONS[prescriptionType] || [];
-    return [];
-  }, [isEyeglasses, mode, prescriptionType]);
+    const baseOptions =
+      mode === "READER"
+        ? EYEGLASS_PRESCRIPTION_OPTIONS.reader
+        : mode === "NON_RX"
+          ? EYEGLASS_NON_RX_OPTIONS
+          : mode === "PRESCRIPTION"
+            ? EYEGLASS_PRESCRIPTION_OPTIONS[prescriptionType] || []
+            : [];
+
+    if (!(mode === "PRESCRIPTION" && prescriptionType === "single_vision")) {
+      return baseOptions;
+    }
+
+    const seen = new Set(baseOptions.map((option) => option.key));
+    const dynamicDrivingOptions: LensOption[] = [];
+    for (const key of Object.keys(lensPrices)) {
+      const normalized = key.toLowerCase();
+      const shouldInclude = normalized.startsWith("drv_day_night_") || normalized.startsWith("drv_night_drive_");
+      if (!shouldInclude || seen.has(key)) continue;
+      dynamicDrivingOptions.push({ key, label: drivingLabelFromKey(key) });
+    }
+
+    return [...baseOptions, ...dynamicDrivingOptions];
+  }, [isEyeglasses, lensPrices, mode, prescriptionType]);
 
   const sunglassOptions = useMemo(() => {
     if (!isSunglasses || mode !== "PRESCRIPTION") return [];
@@ -359,8 +409,12 @@ export default function LensSelector({
       }
       if (activeMode === "ONLY_FRAME") return true;
       if (activeMode === "READER") {
+        if (!hasFullPrescription(prescription, true)) {
+          toast.error("Complete all prescription details");
+          return false;
+        }
         if (!readerRight || !readerLeft) {
-          toast.error("Select reader strength");
+          toast.error("Select reader add power");
           return false;
         }
         if (!lensOptionKey) {
@@ -650,6 +704,7 @@ export default function LensSelector({
                     type="button"
                     onClick={() => {
                       setPrescriptionType(type.key);
+                      setPrescription(sunglassesDefaultPrescription);
                       setSunglassStep("prescriptionForm");
                       setSunglassProceeded(false);
                     }}
@@ -739,6 +794,7 @@ export default function LensSelector({
                         setPrescription((prev) => ({ ...prev, right: { ...prev.right, add: event.target.value } }))
                       }
                     >
+                      <option value="">Select ADD</option>
                       {addOptions.map((value) => (
                         <option key={value} value={value}>
                           {value}
@@ -811,6 +867,7 @@ export default function LensSelector({
                         setPrescription((prev) => ({ ...prev, left: { ...prev.left, add: event.target.value } }))
                       }
                     >
+                      <option value="">Select ADD</option>
                       {addOptions.map((value) => (
                         <option key={value} value={value}>
                           {value}
@@ -1002,14 +1059,14 @@ function renderEyewearDrawer() {
       );
     }
 
-    function renderPrescriptionFields(side: "right" | "left") {
+    function renderPrescriptionFields(side: "right" | "left", forceAdd = needsAdd) {
       const values = prescription[side];
       const title = side === "right" ? "Right Eye" : "Left Eye";
 
       return (
         <div className="rounded-md border border-slate-200 p-3">
           <p className="mb-2 text-sm font-semibold text-slate-800">{title}</p>
-          <div className={`grid gap-2 ${needsAdd ? "grid-cols-4" : "grid-cols-3"}`}>
+          <div className={`grid gap-2 ${forceAdd ? "grid-cols-4" : "grid-cols-3"}`}>
             <div>
               <label className="mb-1 block text-xs text-slate-500">SPH</label>
               <select
@@ -1058,7 +1115,7 @@ function renderEyewearDrawer() {
                 ))}
               </select>
             </div>
-            {needsAdd && (
+            {forceAdd && (
               <div>
                 <label className="mb-1 block text-xs text-slate-500">ADD</label>
                 <select
@@ -1068,6 +1125,7 @@ function renderEyewearDrawer() {
                     setPrescription((prev) => ({ ...prev, [side]: { ...prev[side], add: event.target.value } }))
                   }
                 >
+                  <option value="">Select ADD</option>
                   {addOptions.map((value) => (
                     <option key={value} value={value}>
                       {value}
@@ -1082,31 +1140,31 @@ function renderEyewearDrawer() {
     }
 
     function renderPrescriptionSummary() {
-      if (mode === "READER" || mode === "NON_RX") {
-        const strengthLabel = mode === "READER" ? "ADD" : "SS";
+      if (mode === "NON_RX") {
         return (
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
             <p>
-              <strong>Right Eye {strengthLabel}:</strong> {readerRight || "+0.00"}
+              <strong>Right Eye SS:</strong> {readerRight || "+0.00"}
             </p>
             <p className="mt-1">
-              <strong>Left Eye {strengthLabel}:</strong> {readerLeft || "+0.00"}
+              <strong>Left Eye SS:</strong> {readerLeft || "+0.00"}
             </p>
           </div>
         );
       }
 
+      const showAdd = mode === "READER" ? true : needsAdd;
       return (
         <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
           <p>
             <strong>Right Eye:</strong> SPH: {prescription.right.sph || "0.00"}, CYL: {prescription.right.cyl || "0.00"}, Axis:{" "}
             {prescription.right.axis || "0"}
-            {needsAdd ? `, ADD: ${prescription.right.add || "0.00"}` : ""}
+            {showAdd ? `, ADD: ${prescription.right.add || "-"}` : ""}
           </p>
           <p className="mt-1">
             <strong>Left Eye:</strong> SPH: {prescription.left.sph || "0.00"}, CYL: {prescription.left.cyl || "0.00"}, Axis:{" "}
             {prescription.left.axis || "0"}
-            {needsAdd ? `, ADD: ${prescription.left.add || "0.00"}` : ""}
+            {showAdd ? `, ADD: ${prescription.left.add || "-"}` : ""}
           </p>
         </div>
       );
@@ -1134,10 +1192,11 @@ function renderEyewearDrawer() {
 
               {topOptionButton("Reader", "READER", () => {
                 setMode("READER");
-                setReaderRight(READER_SS_RANGE[0] || "+0.50");
-                setReaderLeft(READER_SS_RANGE[0] || "+0.50");
+                setReaderRight("");
+                setReaderLeft("");
                 setLensOptionKey("");
                 setEyewearProceeded(false);
+                setPrescription(eyewearDefaultPrescription);
                 setEyewearStep("strengthForm");
               })}
 
@@ -1238,48 +1297,64 @@ function renderEyewearDrawer() {
               >
                 &lt;- Back
               </button>
-              <h4 className="text-base font-semibold text-slate-800">STEP 2 - Select Strength (SS)</h4>
-              <div className="rounded-md border border-slate-200 p-3">
-                <p className="mb-2 text-sm font-semibold text-slate-800">
-                  {mode === "READER" ? "Right & Left (Bifocal Add Power)" : "Zero Power"}
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="mb-1 block text-xs text-slate-500">{mode === "READER" ? "Right Eye ADD" : "Right Eye SS"}</label>
-                    <select
-                      value={readerRight}
-                      onChange={(event) => setReaderRight(event.target.value)}
-                      className="w-full rounded-md border px-2 py-2 text-sm"
-                    >
-                      {(mode === "READER" ? READER_SS_RANGE : NON_RX_SS_RANGE).map((value) => (
-                        <option key={value} value={value}>
-                          {value}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs text-slate-500">{mode === "READER" ? "Left Eye ADD" : "Left Eye SS"}</label>
-                    <select
-                      value={readerLeft}
-                      onChange={(event) => setReaderLeft(event.target.value)}
-                      className="w-full rounded-md border px-2 py-2 text-sm"
-                    >
-                      {(mode === "READER" ? READER_SS_RANGE : NON_RX_SS_RANGE).map((value) => (
-                        <option key={value} value={value}>
-                          {value}
-                        </option>
-                      ))}
-                    </select>
+              <h4 className="text-base font-semibold text-slate-800">
+                {mode === "READER" ? "STEP 2 - Enter Reader Prescription" : "STEP 2 - Select Strength (SS)"}
+              </h4>
+              {mode === "READER" ? (
+                <>
+                  {renderPrescriptionFields("right", true)}
+                  {renderPrescriptionFields("left", true)}
+                </>
+              ) : (
+                <div className="rounded-md border border-slate-200 p-3">
+                  <p className="mb-2 text-sm font-semibold text-slate-800">Zero Power</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="mb-1 block text-xs text-slate-500">Right Eye SS</label>
+                      <select
+                        value={readerRight}
+                        onChange={(event) => setReaderRight(event.target.value)}
+                        className="w-full rounded-md border px-2 py-2 text-sm"
+                      >
+                        {NON_RX_SS_RANGE.map((value) => (
+                          <option key={value} value={value}>
+                            {value}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs text-slate-500">Left Eye SS</label>
+                      <select
+                        value={readerLeft}
+                        onChange={(event) => setReaderLeft(event.target.value)}
+                        className="w-full rounded-md border px-2 py-2 text-sm"
+                      >
+                        {NON_RX_SS_RANGE.map((value) => (
+                          <option key={value} value={value}>
+                            {value}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
               <button
                 type="button"
                 onClick={() => {
-                  if (!readerRight || !readerLeft) {
-                    toast.error("Select strength");
-                    return;
+                  if (mode === "READER") {
+                    if (!hasFullPrescription(prescription, true)) {
+                      toast.error("Complete all prescription details");
+                      return;
+                    }
+                    setReaderRight(prescription.right.add);
+                    setReaderLeft(prescription.left.add);
+                  } else {
+                    if (!readerRight || !readerLeft) {
+                      toast.error("Select strength");
+                      return;
+                    }
                   }
                   setEyewearProceeded(true);
                   setEyewearStep("lensType");
@@ -1321,6 +1396,7 @@ function renderEyewearDrawer() {
                       {group.items.map((option) => {
                         const active = lensOptionKey === option.key;
                         const price = lensPrices[option.key] || 0;
+                        const displayLabel = eyewearQuickLabel(option.label, group.id);
 
                         if (option.requiresTint) {
                           return (
@@ -1373,7 +1449,7 @@ function renderEyewearDrawer() {
                           >
                             <span className="inline-flex items-center gap-2">
                               <span className={`h-4 w-4 rounded-full border ${active ? "border-emerald-600 bg-emerald-600" : "border-slate-400 bg-white"}`} />
-                              {option.label}
+                              {displayLabel}
                             </span>
                             <strong>{formatINR(price)}</strong>
                           </button>

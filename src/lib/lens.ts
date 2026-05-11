@@ -43,10 +43,8 @@ export function generateWholeNumberRange(start: number, end: number) {
 export const EYEWEAR_SPH_RANGE = generateSignedRange(-10, 6, 0.25);
 export const EYEWEAR_CYL_RANGE = generateSignedRange(-4, 4, 0.25);
 export const EYEWEAR_AXIS_RANGE = generateWholeNumberRange(0, 180);
-export const EYEWEAR_ADD_RANGE = generateSignedRange(0, 3, 0.25);
-export const BIFOCAL_PROGRESSIVE_ADD_RANGE = EYEWEAR_ADD_RANGE.filter(
-  (value) => !["+0.25", "+0.50", "+0.75"].includes(value),
-);
+export const EYEWEAR_ADD_RANGE = generateSignedRange(1, 3, 0.25);
+export const BIFOCAL_PROGRESSIVE_ADD_RANGE = EYEWEAR_ADD_RANGE;
 export const READER_SS_RANGE = BIFOCAL_PROGRESSIVE_ADD_RANGE;
 export const NON_RX_SS_RANGE = ["+0.00"];
 
@@ -114,6 +112,7 @@ export const EYEGLASS_PRESCRIPTION_OPTIONS: Record<string, LensOption[]> = {
     { key: "pbf_blublock_basic", label: "Blu-Block" },
     { key: "pbf_blublock_advance", label: "Blu-Block Mild Hi-Index 1.60" },
     { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
+    { key: "drv_night_drive_yellow", label: "Night Drive Yellow Colour" },
     { key: "drv_day_night_basic", label: "Day & Night Lenses Basic" },
     { key: "drv_day_night_turbo", label: "Day & Night Lenses Turbo" },
   ],
@@ -129,6 +128,7 @@ export const EYEGLASS_PRESCRIPTION_OPTIONS: Record<string, LensOption[]> = {
     { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
     { key: "drv_polarized_basic", label: "Polarized Basic" },
     { key: "drv_polarized_premium", label: "Polarized Advance" },
+    { key: "drv_night_drive_yellow", label: "Night Drive Yellow Colour" },
     { key: "drv_day_night_basic", label: "Day & Night Lenses Basic" },
     { key: "drv_day_night_turbo", label: "Day & Night Lenses Turbo" },
   ],

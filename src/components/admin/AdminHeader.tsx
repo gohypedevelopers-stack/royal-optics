@@ -39,7 +39,7 @@ export default function AdminHeader({
             type="button"
             variant="outline"
             size="icon"
-            className="h-10 w-10 rounded-xl border-slate-300 bg-white/90 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:hover:bg-slate-900"
+            className="h-10 w-10 rounded-xl border-slate-300 bg-white/90 text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900 dark:hover:text-white"
             onClick={() => setTheme(isDark ? "light" : "dark")}
             aria-label="Toggle theme"
           >

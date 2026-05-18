@@ -131,10 +131,10 @@ export default async function AdminDashboardPage() {
         <StatCard title="Revenue" value={formatINR(revenue)} tone="success" icon={<IndianRupee size={18} />} />
       </section>
 
-      <Card className="rounded-2xl border-slate-200/90 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
+      <Card className="rounded-2xl border-slate-200/90 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-800/80 dark:bg-slate-950/95">
         <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <Sparkles size={20} className="text-blue-600" /> Quick Actions
+          <CardTitle className="flex items-center gap-2 text-2xl dark:text-slate-100">
+            <Sparkles size={20} className="text-blue-600 dark:text-blue-400" /> Quick Actions
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -144,46 +144,46 @@ export default async function AdminDashboardPage() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="group rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-3.5 transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-md"
+                className="group rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-3.5 transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:from-slate-950 dark:to-slate-900 dark:hover:border-blue-900"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 group-hover:border-blue-200 group-hover:text-blue-700">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 group-hover:border-blue-200 group-hover:text-blue-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:group-hover:border-blue-900 dark:group-hover:text-blue-400">
                     <Icon size={16} />
                   </span>
-                  <ArrowRight size={16} className="mt-1 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-blue-600" />
+                  <ArrowRight size={16} className="mt-1 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-blue-600 dark:text-slate-500 dark:group-hover:text-blue-400" />
                 </div>
-                <p className="mt-2 text-lg font-semibold text-slate-900">{item.label}</p>
-                <p className="mt-1 text-xs text-slate-500">{item.desc}</p>
+                <p className="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">{item.label}</p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.desc}</p>
               </Link>
             );
           })}
         </CardContent>
       </Card>
 
-      <Card className="rounded-2xl border-slate-200/90 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
+      <Card className="rounded-2xl border-slate-200/90 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-800/80 dark:bg-slate-950/95">
         <CardHeader className="pb-2">
-          <CardTitle className="text-2xl">Sales Summary</CardTitle>
+          <CardTitle className="text-2xl dark:text-slate-100">Sales Summary</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-3">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs uppercase tracking-wide text-slate-500">Paid Revenue</p>
-            <p className="mt-2 text-4xl font-semibold tracking-tight text-slate-900">{formatINR(revenue)}</p>
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/40">
+            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Paid Revenue</p>
+            <p className="mt-2 text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">{formatINR(revenue)}</p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs uppercase tracking-wide text-slate-500">Delivered Orders</p>
-            <p className="mt-2 text-4xl font-semibold tracking-tight text-slate-900">{deliveredOrders}</p>
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/40">
+            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Delivered Orders</p>
+            <p className="mt-2 text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">{deliveredOrders}</p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs uppercase tracking-wide text-slate-500">Cancelled Orders</p>
-            <p className="mt-2 text-4xl font-semibold tracking-tight text-slate-900">{cancelledOrders}</p>
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900/40">
+            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Cancelled Orders</p>
+            <p className="mt-2 text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">{cancelledOrders}</p>
           </div>
         </CardContent>
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card className="rounded-2xl border-slate-200/90 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
+        <Card className="rounded-2xl border-slate-200/90 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-800/80 dark:bg-slate-950/95">
           <CardHeader className="pb-3">
-            <CardTitle className="text-2xl">Recent Orders</CardTitle>
+            <CardTitle className="text-2xl dark:text-slate-100">Recent Orders</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <DataTable
@@ -197,14 +197,14 @@ export default async function AdminDashboardPage() {
               {recentOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell>
-                    <Link className="font-semibold text-blue-700 hover:underline" href={`/admin/orders/${order.id}`}>
+                    <Link className="font-semibold text-blue-700 hover:underline dark:text-blue-400" href={`/admin/orders/${order.id}`}>
                       {order.orderNumber}
                     </Link>
-                    <p className="text-xs text-slate-500">{new Date(order.createdAt).toLocaleString("en-IN")}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(order.createdAt).toLocaleString("en-IN")}</p>
                   </TableCell>
                   <TableCell>
                     <p className="font-medium">{order.user.username}</p>
-                    <p className="text-xs text-slate-500">{order.user.phone}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{order.user.phone}</p>
                   </TableCell>
                   <TableCell>{formatINR(Number(order.grandTotal))}</TableCell>
                   <TableCell>
@@ -216,23 +216,23 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-slate-200/90 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
+        <Card className="rounded-2xl border-slate-200/90 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-800/80 dark:bg-slate-950/95">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <Activity size={20} className="text-rose-600" /> Low Stock Alerts
+            <CardTitle className="flex items-center gap-2 text-2xl dark:text-slate-100">
+              <Activity size={20} className="text-rose-600 dark:text-rose-400" /> Low Stock Alerts
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 pt-0">
             {lowStockProducts.length === 0 ? (
-              <p className="text-sm text-slate-500">No low stock products right now.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">No low stock products right now.</p>
             ) : (
               lowStockProducts.map((product) => (
-                <div key={product.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <div key={product.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900/40">
                   <div>
-                    <Link href={`/admin/products/${product.id}/edit`} className="text-sm font-semibold text-blue-700 hover:underline">
+                    <Link href={`/admin/products/${product.id}/edit`} className="text-sm font-semibold text-blue-700 hover:underline dark:text-blue-400">
                       {product.name}
                     </Link>
-                    <p className="text-xs text-slate-500">Stock left: {product.stock}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Stock left: {product.stock}</p>
                   </div>
                   <StatusBadge value={product.status} />
                 </div>
@@ -242,22 +242,22 @@ export default async function AdminDashboardPage() {
         </Card>
       </div>
 
-      <Card className="rounded-2xl border-slate-200/90 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)]">
+      <Card className="rounded-2xl border-slate-200/90 bg-white/95 shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:border-slate-800/80 dark:bg-slate-950/95">
         <CardHeader className="pb-3">
-          <CardTitle className="text-2xl">Pending Testimonials</CardTitle>
+          <CardTitle className="text-2xl dark:text-slate-100">Pending Testimonials</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 pt-0">
           {latestTestimonials.length === 0 ? (
-            <p className="text-sm text-slate-500">No pending testimonials.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">No pending testimonials.</p>
           ) : (
             latestTestimonials.map((item) => (
-              <div key={item.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+              <div key={item.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 dark:border-slate-800 dark:bg-slate-900/40">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold">{item.name}</p>
                   <StatusBadge value={item.status} />
                 </div>
-                <p className="text-xs text-slate-500">Rating {item.rating}/5</p>
-                <p className="mt-1 line-clamp-2 text-sm text-slate-600">{item.message}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Rating {item.rating}/5</p>
+                <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{item.message}</p>
               </div>
             ))
           )}

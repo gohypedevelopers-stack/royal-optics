@@ -10,8 +10,8 @@ export default function DataTable({
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
       <Table>
-        <TableHeader className="bg-slate-50">
-          <TableRow className="hover:bg-slate-50">
+        <TableHeader className="bg-slate-50 dark:bg-slate-900/60">
+          <TableRow className="hover:bg-slate-50 dark:hover:bg-slate-900/40">
             {headers.map((header) => (
               <TableHead key={header.key} className={`text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 ${header.className || ""}`}>
                 {header.label}

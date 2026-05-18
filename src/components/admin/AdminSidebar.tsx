@@ -31,9 +31,9 @@ export default function AdminSidebar() {
 
   return (
     <aside className="sticky top-[108px] h-fit rounded-2xl border border-slate-200/80 bg-white/90 p-3 shadow-[0_16px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-slate-800 dark:bg-slate-950/85">
-      <div className="rounded-xl bg-gradient-to-r from-slate-900 to-blue-900 px-3 py-3 text-white dark:from-slate-800 dark:to-blue-950">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-100">Admin Panel</p>
-        <p className="mt-1 text-sm font-medium text-white/90">Navigate commerce modules</p>
+      <div className="rounded-xl border border-blue-100/60 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 px-3.5 py-3 transition-all duration-300 dark:border-blue-950/40 dark:from-blue-950/30 dark:to-indigo-950/30">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-600 transition-colors duration-300 dark:text-blue-400">Admin Panel</p>
+        <p className="mt-0.5 text-xs font-semibold text-slate-700 transition-colors duration-300 dark:text-slate-300">Navigate commerce modules</p>
       </div>
       <nav className="mt-3 space-y-1.5">
         {links.map((link) => {

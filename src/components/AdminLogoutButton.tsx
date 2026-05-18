@@ -22,7 +22,7 @@ export default function AdminLogoutButton() {
     <Button
       type="button"
       variant="outline"
-      className="h-10 rounded-xl border-slate-300 bg-white/90 px-5 text-sm font-semibold hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:hover:bg-slate-900"
+      className="h-10 rounded-xl border-slate-300 bg-white/90 px-5 text-sm font-semibold text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900 dark:hover:text-white"
       onClick={logout}
     >
       Logout

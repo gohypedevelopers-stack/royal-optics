@@ -18,7 +18,7 @@ export default function AdminLayout({
       <AdminHeader title={title} subtitle={subtitle} actions={actions} />
       <div className="relative mx-auto grid w-full max-w-[1540px] gap-6 px-3 py-6 md:px-6 lg:grid-cols-[270px_minmax(0,1fr)] xl:gap-7">
         <AdminSidebar />
-        <main className="space-y-6">{children}</main>
+        <main className="min-w-0 space-y-6">{children}</main>
       </div>
     </div>
   );

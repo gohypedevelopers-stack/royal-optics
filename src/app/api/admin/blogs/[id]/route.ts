@@ -14,23 +14,25 @@ async function ensureAdmin() {
   return session;
 }
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
-  const item = await prisma.blogPost.findUnique({ where: { id: params.id } });
+  const { id } = await params;
+  const item = await prisma.blogPost.findUnique({ where: { id } });
   if (!item) return NextResponse.json({ error: "Blog not found" }, { status: 404 });
   return NextResponse.json({ item });
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
+  const { id } = await params;
   try {
     const payload = blogSchema.parse(await request.json());
     const item = await prisma.blogPost.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: payload.title,
         slug: payload.slug?.trim() ? toSlug(payload.slug) : toSlug(payload.title),
@@ -46,9 +48,10 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
-  await prisma.blogPost.delete({ where: { id: params.id } });
+  const { id } = await params;
+  await prisma.blogPost.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

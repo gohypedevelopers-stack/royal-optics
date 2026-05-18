@@ -17,23 +17,25 @@ function toDateOrNull(value?: string) {
   return value ? new Date(value) : null;
 }
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
-  const item = await prisma.promoCode.findUnique({ where: { id: params.id } });
+  const { id } = await params;
+  const item = await prisma.promoCode.findUnique({ where: { id } });
   if (!item) return NextResponse.json({ error: "Coupon not found" }, { status: 404 });
   return NextResponse.json({ item });
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
+  const { id } = await params;
   try {
     const payload = promoCodeSchema.parse(await request.json());
     const item = await prisma.promoCode.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         code: payload.code.trim().toUpperCase(),
         description: payload.description?.trim() || null,
@@ -56,10 +58,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
-  await prisma.promoCode.delete({ where: { id: params.id } });
+  const { id } = await params;
+  await prisma.promoCode.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
 

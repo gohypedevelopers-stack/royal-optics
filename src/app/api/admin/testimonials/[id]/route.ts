@@ -14,16 +14,17 @@ async function ensureAdmin() {
   return session;
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
+  const { id } = await params;
   try {
     const body = await request.json();
     const status = testimonialStatusSchema.parse(body.status);
 
     const item = await prisma.testimonial.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status,
         isApproved: status === TestimonialStatus.APPROVED,
@@ -35,9 +36,10 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
-  await prisma.testimonial.delete({ where: { id: params.id } });
+  const { id } = await params;
+  await prisma.testimonial.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

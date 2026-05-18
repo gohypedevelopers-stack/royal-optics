@@ -6,15 +6,16 @@ import { orderStatusSchema } from "@/lib/validators";
 
 export async function GET(
   _: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = await params;
   const order = await prisma.order.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       items: { include: { prescriptionDetail: true } },
       address: true,
@@ -42,18 +43,19 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getSession();
   if (!session || session.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = await params;
   const body = await request.json();
   const status = orderStatusSchema.parse(body.status);
 
   const order = await prisma.order.update({
-    where: { id: params.id },
+    where: { id },
     data: { status },
   });
 
@@ -62,14 +64,15 @@ export async function PATCH(
 
 export async function DELETE(
   _: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getSession();
   if (!session || session.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await prisma.order.delete({ where: { id: params.id } });
+  const { id } = await params;
+  await prisma.order.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
 

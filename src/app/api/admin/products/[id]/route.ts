@@ -14,12 +14,13 @@ async function ensureAdmin() {
   return session;
 }
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
+  const { id } = await params;
   const item = await prisma.product.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       category: true,
       images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
@@ -30,10 +31,11 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   return NextResponse.json({ item });
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
+  const { id } = await params;
   try {
     const payload = productSchema.parse(await request.json());
     const imageUrls = payload.additionalImages?.length ? payload.additionalImages : payload.imageUrls;
@@ -42,7 +44,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     const item = await prisma.$transaction(async (tx) => {
       const product = await tx.product.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           name: payload.name,
           slug: payload.slug?.trim() ? toSlug(payload.slug) : toSlug(payload.name),
@@ -64,11 +66,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         },
       });
 
-      await tx.productImage.deleteMany({ where: { productId: params.id } });
+      await tx.productImage.deleteMany({ where: { productId: id } });
       if (imageUrls.length) {
         await tx.productImage.createMany({
           data: imageUrls.map((url, index) => ({
-            productId: params.id,
+            productId: id,
             url,
             alt: payload.name,
             sortOrder: index,
@@ -77,11 +79,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         });
       }
 
-      await tx.productColor.deleteMany({ where: { productId: params.id } });
+      await tx.productColor.deleteMany({ where: { productId: id } });
       if (payload.availableColors.length) {
         await tx.productColor.createMany({
           data: payload.availableColors.map((color) => ({
-            productId: params.id,
+            productId: id,
             name: color.name,
             hexCode: color.hexCode,
           })),
@@ -97,10 +99,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
-  await prisma.product.delete({ where: { id: params.id } });
+  const { id } = await params;
+  await prisma.product.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

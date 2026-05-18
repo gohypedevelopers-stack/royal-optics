@@ -27,35 +27,37 @@ async function resolveParentCategoryId(categoryId: string, parentId?: string | n
   return parent.id;
 }
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
+  const { id } = await params;
   const item = await prisma.category.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { _count: { select: { products: true } } },
   });
   if (!item) return NextResponse.json({ error: "Category not found" }, { status: 404 });
   return NextResponse.json({ item });
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
+  const { id } = await params;
   try {
     const payload = categorySchema.parse(await request.json());
     const slug = payload.slug?.trim() ? toSlug(payload.slug) : toSlug(payload.name);
-    const parentId = await resolveParentCategoryId(params.id, payload.parentId || null);
+    const parentId = await resolveParentCategoryId(id, payload.parentId || null);
     if (parentId) {
-      const childCount = await prisma.category.count({ where: { parentId: params.id } });
+      const childCount = await prisma.category.count({ where: { parentId: id } });
       if (childCount > 0) {
         throw new Error("Cannot convert a parent category with children into a child category");
       }
     }
 
     const item = await prisma.category.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: payload.name,
         slug,
@@ -71,13 +73,14 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await ensureAdmin();
   if (!session) return unauthorized();
 
+  const { id } = await params;
   const [count, childCount] = await Promise.all([
-    prisma.product.count({ where: { categoryId: params.id } }),
-    prisma.category.count({ where: { parentId: params.id } }),
+    prisma.product.count({ where: { categoryId: id } }),
+    prisma.category.count({ where: { parentId: id } }),
   ]);
   if (count > 0 || childCount > 0) {
     return NextResponse.json(
@@ -86,6 +89,6 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
     );
   }
 
-  await prisma.category.delete({ where: { id: params.id } });
+  await prisma.category.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,13 @@ export default function AdminHeader({
   subtitle?: string;
   actions?: React.ReactNode;
 }) {
+  const [mounted, setMounted] = useState(false);
   const { setTheme, resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const isDark = resolvedTheme === "dark";
 
   return (
@@ -36,7 +43,7 @@ export default function AdminHeader({
             onClick={() => setTheme(isDark ? "light" : "dark")}
             aria-label="Toggle theme"
           >
-            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            {mounted ? (isDark ? <Sun size={16} /> : <Moon size={16} />) : <div className="h-4 w-4" />}
           </Button>
         </div>
       </div>

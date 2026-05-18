@@ -46,7 +46,8 @@ async function safeWishlistCount(ownerKey: string | null) {
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
-  const guestToken = cookies().get(GUEST_TOKEN_COOKIE)?.value;
+  const cookieStore = await cookies();
+  const guestToken = cookieStore.get(GUEST_TOKEN_COOKIE)?.value;
 
   const ownerKey =
     session?.role === "USER" && session.userId

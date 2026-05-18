@@ -175,7 +175,31 @@ function buildPrescriptionSeed(prefix: "psv" | "pbf" | "ppg", category: string):
     },
   ];
 
-  return singleVisionBlueprint.map((item, index) => ({
+  const blueprint = singleVisionBlueprint.filter((item) => {
+    if (prefix === "pbf") {
+      return (
+        item.group !== "Day & Night Lenses" &&
+        item.group !== "Driving Lenses (Tinted UV)" &&
+        item.group !== "Polarized Lenses"
+      );
+    }
+    if (prefix === "ppg") {
+      return (
+        item.group !== "Driving Lenses (Tinted UV)" &&
+        item.group !== "Polarized Lenses"
+      );
+    }
+    if (prefix === "psv") {
+      return (
+        item.group !== "Day & Night Lenses" &&
+        item.group !== "Driving Lenses (Tinted UV)" &&
+        item.group !== "Polarized Lenses"
+      );
+    }
+    return true;
+  });
+
+  return blueprint.map((item, index) => ({
     title: item.title,
     description: item.description,
     key: item.key.replace("psv_", `${prefix}_`),
@@ -304,35 +328,13 @@ function buildLensSeedData(): LensSeed[] {
       value: 0,
     },
     {
-      title: "Non-Rx: Blu Block - Advance (60%)",
-      description: "~60% blue-light filtration",
-      key: "nonrx_blublock_advance",
-      valueType: LensValueType.PRICE,
-      category: "Non-Prescription",
-      group: "Non-Prescription",
-      sortOrder: 4,
-      isActive: true,
-      value: 0,
-    },
-    {
-      title: "Non-Rx: Blu Block - Premium (90%)",
-      description: "~90% blue-light filtration",
-      key: "nonrx_blublock_premium",
-      valueType: LensValueType.PRICE,
-      category: "Non-Prescription",
-      group: "Non-Prescription",
-      sortOrder: 5,
-      isActive: true,
-      value: 0,
-    },
-    {
       title: "Non-Rx: Polycarbonate - Anti Reflection",
       description: "Unbreakable; rimless OK",
       key: "nonrx_poly_ar",
       valueType: LensValueType.PRICE,
       category: "Non-Prescription",
       group: "Non-Prescription",
-      sortOrder: 6,
+      sortOrder: 4,
       isActive: true,
       value: 0,
     },
@@ -343,7 +345,7 @@ function buildLensSeedData(): LensSeed[] {
       valueType: LensValueType.PRICE,
       category: "Non-Prescription",
       group: "Non-Prescription",
-      sortOrder: 7,
+      sortOrder: 5,
       isActive: true,
       value: 0,
     },

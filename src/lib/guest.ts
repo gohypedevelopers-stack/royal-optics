@@ -10,12 +10,13 @@ export type OwnerContext = {
   guestToken: string | null;
 };
 
-export function getGuestTokenFromCookie() {
-  return cookies().get(GUEST_TOKEN_COOKIE)?.value ?? null;
+export async function getGuestTokenFromCookie() {
+  const cookieStore = await cookies();
+  return cookieStore.get(GUEST_TOKEN_COOKIE)?.value ?? null;
 }
 
-export function ensureGuestToken() {
-  const cookieStore = cookies();
+export async function ensureGuestToken() {
+  const cookieStore = await cookies();
   let guestToken = cookieStore.get(GUEST_TOKEN_COOKIE)?.value;
 
   if (!guestToken) {
@@ -43,7 +44,7 @@ export async function getOwnerContext(): Promise<OwnerContext> {
     };
   }
 
-  const guestToken = ensureGuestToken();
+  const guestToken = await ensureGuestToken();
 
   return {
     ownerKey: `guest:${guestToken}`,

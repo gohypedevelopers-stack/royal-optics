@@ -48,7 +48,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid login credentials" }, { status: 401 });
     }
 
-    const guestToken = cookies().get(GUEST_TOKEN_COOKIE)?.value ?? null;
+    const cookieStore = await cookies();
+    const guestToken = cookieStore.get(GUEST_TOKEN_COOKIE)?.value ?? null;
     await mergeGuestStateToUser(user.id, guestToken);
 
     await setSessionCookie({

@@ -44,6 +44,8 @@ async function safeWishlistCount(ownerKey: string | null) {
   }
 }
 
+import { ThemeProvider } from "@/components/theme-provider";
+
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
   const cookieStore = await cookies();
@@ -63,22 +65,24 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   ]);
 
   return (
-    <div className="min-h-screen">
-      <Navbar
-        categories={categories.map((category) => ({
-          id: category.id,
-          name: category.name,
-          slug: category.slug,
-          parentId: category.parentId,
-        }))}
-        cartCount={cartCount}
-        wishlistCount={wishlistCount}
-        isLoggedIn={session?.role === "USER"}
-        isAdmin={session?.role === "ADMIN"}
-      />
-      <main>{children}</main>
-      <SiteFooter />
-    </div>
+    <ThemeProvider forcedTheme="light">
+      <div className="min-h-screen bg-white text-slate-900">
+        <Navbar
+          categories={categories.map((category) => ({
+            id: category.id,
+            name: category.name,
+            slug: category.slug,
+            parentId: category.parentId,
+          }))}
+          cartCount={cartCount}
+          wishlistCount={wishlistCount}
+          isLoggedIn={session?.role === "USER"}
+          isAdmin={session?.role === "ADMIN"}
+        />
+        <main>{children}</main>
+        <SiteFooter />
+      </div>
+    </ThemeProvider>
   );
 }
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import AppToaster from "@/components/AppToaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import ThemeWatcher from "@/components/ThemeWatcher";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
@@ -13,6 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className="site-bg min-h-screen antialiased">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <ThemeWatcher />
           {children}
           <AppToaster />
         </ThemeProvider>

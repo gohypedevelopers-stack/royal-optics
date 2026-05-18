@@ -150,7 +150,7 @@ export default function Navbar({ categories, cartCount, wishlistCount, isLoggedI
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search Optical Store"
-                  className="h-10 w-full px-3 text-sm text-slate-700 outline-none placeholder:text-slate-400"
+                  className="h-10 w-full bg-white px-3 text-sm text-slate-700 outline-none placeholder:text-slate-400"
                 />
               </div>
               <button type="submit" className="inline-flex h-10 items-center justify-center border-l border-amber-500 bg-amber-400 px-4 text-slate-900 hover:bg-amber-300">
@@ -237,7 +237,7 @@ export default function Navbar({ categories, cartCount, wishlistCount, isLoggedI
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search Optical Store"
-                className="h-10 flex-1 px-3 text-sm text-slate-700 outline-none"
+                className="h-10 flex-1 bg-white px-3 text-sm text-slate-700 outline-none"
               />
               <button type="submit" className="inline-flex h-10 items-center justify-center bg-amber-400 px-4 text-slate-900 hover:bg-amber-300">
                 <Search size={15} />

@@ -5,10 +5,11 @@ import ProductForm from "@/components/admin/ProductForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminProductEditPage({ params }: { params: { id: string } }) {
+export default async function AdminProductEditPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const [item, categories] = await Promise.all([
     prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         images: { orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }] },
         productColors: true,

@@ -10,9 +10,10 @@ import { prisma } from "@/lib/prisma";
 export default async function ProductDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const param = params.id;
+  const { id } = await params;
+  const param = id;
 
   const product = await prisma.product.findFirst({
     where: {

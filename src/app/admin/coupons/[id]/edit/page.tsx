@@ -5,8 +5,9 @@ import CouponForm from "@/components/admin/CouponForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminCouponsEditPage({ params }: { params: { id: string } }) {
-  const item = await prisma.promoCode.findUnique({ where: { id: params.id } });
+export default async function AdminCouponsEditPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const item = await prisma.promoCode.findUnique({ where: { id } });
   if (!item) notFound();
 
   return (

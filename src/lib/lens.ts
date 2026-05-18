@@ -122,23 +122,25 @@ export const EYEGLASS_PRESCRIPTION_OPTIONS: Record<string, LensOption[]> = {
 
 export const SUNGLASS_PRESCRIPTION_OPTIONS: Record<string, LensOption[]> = {
   single_vision: [
-    { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
-    { key: "drv_polarized_basic", label: "Polarized Basic" },
-    { key: "drv_polarized_premium", label: "Polarized Advance" },
-    { key: "drv_day_night_basic", label: "Day & Night Basic" },
-    { key: "drv_day_night_turbo", label: "Day & Night Turbo" },
+    { key: "drv_sv_tinted_uv", label: "Tinted UV (any color & darkness)", requiresTint: true },
+    { key: "drv_sv_polarized_basic", label: "Polarized - Basic (front 5-layer)" },
+    { key: "drv_sv_polarized_premium", label: "Polarized - Premium (+AR, back 5)" },
+    { key: "drv_sv_day_night_basic", label: "Day & Night - Basic" },
+    { key: "drv_sv_day_night_turbo", label: "Day & Night - Turbo" },
   ],
   bifocal: [
-    { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
-    { key: "drv_day_night_basic", label: "Day & Night Basic" },
-    { key: "drv_day_night_turbo", label: "Day & Night Turbo" },
+    { key: "drv_bf_tinted_uv", label: "Tinted UV (any color & darkness)", requiresTint: true },
+    { key: "drv_bf_polarized_basic", label: "Polarized - Basic (front 5-layer)" },
+    { key: "drv_bf_polarized_premium", label: "Polarized - Premium (+AR, back 5)" },
+    { key: "drv_bf_day_night_basic", label: "Day & Night - Basic" },
+    { key: "drv_bf_day_night_turbo", label: "Day & Night - Turbo" },
   ],
   progressive: [
-    { key: "drv_tinted_uv", label: "Tinted UV-Lenses", requiresTint: true },
-    { key: "drv_polarized_basic", label: "Polarized Basic" },
-    { key: "drv_polarized_premium", label: "Polarized Advance" },
-    { key: "drv_day_night_basic", label: "Day & Night Basic" },
-    { key: "drv_day_night_turbo", label: "Day & Night Turbo" },
+    { key: "drv_pg_tinted_uv", label: "Tinted UV (any color & darkness)", requiresTint: true },
+    { key: "drv_pg_polarized_basic", label: "Polarized - Basic (front 5-layer)" },
+    { key: "drv_pg_polarized_premium", label: "Polarized - Premium (+AR, back 5)" },
+    { key: "drv_pg_day_night_basic", label: "Day & Night - Basic" },
+    { key: "drv_pg_day_night_turbo", label: "Day & Night - Turbo" },
   ],
 };
 

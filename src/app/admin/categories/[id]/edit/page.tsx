@@ -5,11 +5,12 @@ import CategoryForm from "@/components/admin/CategoryForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminCategoryEditPage({ params }: { params: { id: string } }) {
+export default async function AdminCategoryEditPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const [item, parentOptions] = await Promise.all([
-    prisma.category.findUnique({ where: { id: params.id } }),
+    prisma.category.findUnique({ where: { id } }),
     prisma.category.findMany({
-      where: { id: { not: params.id }, parentId: null },
+      where: { id: { not: id }, parentId: null },
       orderBy: { name: "asc" },
       select: {
         id: true,

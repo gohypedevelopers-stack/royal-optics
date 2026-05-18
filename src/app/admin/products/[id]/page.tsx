@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
-export default function AdminProductLegacyPage({ params }: { params: { id: string } }) {
-  redirect(`/admin/products/${params.id}/edit`);
+export default async function AdminProductLegacyPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  redirect(`/admin/products/${id}/edit`);
 }

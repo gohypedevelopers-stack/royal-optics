@@ -23,17 +23,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Empty file body" }, { status: 400 });
     }
 
-    // Save path inside public directory
-    const publicPath = path.join(process.cwd(), "public", filePathVal);
-    
-    // Ensure parent directory (public/uploads) exists
-    const dir = path.dirname(publicPath);
-    await fs.mkdir(dir, { recursive: true });
+    const mimeType = request.headers.get("content-type") || "image/jpeg";
 
-    // Write file
-    await fs.writeFile(publicPath, buffer);
+    try {
+      // Save path inside public directory
+      const publicPath = path.join(process.cwd(), "public", filePathVal);
+      
+      // Ensure parent directory (public/uploads) exists
+      const dir = path.dirname(publicPath);
+      await fs.mkdir(dir, { recursive: true });
 
-    return NextResponse.json({ success: true, url: filePathVal });
+      // Write file
+      await fs.writeFile(publicPath, buffer);
+
+      return NextResponse.json({ success: true, url: filePathVal });
+    } catch (writeError: any) {
+      console.warn("Local filesystem write failed, falling back to Base64 data URL:", writeError.message);
+      
+      // Fallback: return Base64 data URL
+      const base64Data = `data:${mimeType};base64,${buffer.toString("base64")}`;
+      return NextResponse.json({ success: true, url: base64Data });
+    }
   } catch (error: any) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: error.message || "Failed to upload file" }, { status: 500 });

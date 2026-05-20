@@ -59,15 +59,17 @@ export default function ImageUploader({ label, value, onChange, multiple = false
         body: file,
       });
 
+      const errorData = await uploadResponse.json().catch(() => ({}));
       if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to upload image file to server");
       }
 
+      const uploadedUrl = errorData.url || filePath;
+
       if (multiple) {
-        onChange([...value, filePath]);
+        onChange([...value, uploadedUrl]);
       } else {
-        onChange([filePath]);
+        onChange([uploadedUrl]);
       }
       toast.success("Image uploaded successfully");
     } catch (error: any) {

@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 import Link from "next/link";
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import { Prisma } from "@prisma/client";
 import { ShoppingCart } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -45,10 +45,11 @@ function ancestorIds(rootId: string, categories: Array<{ id: string; parentId: s
   return ids;
 }
 
-export default async function ProductsPage({ searchParams }: { searchParams: SearchParamsInput }) {
-  const query = paramValue(searchParams.q);
-  const categorySlug = paramValue(searchParams.category);
-  const sort = paramValue(searchParams.sort) || "relevance";
+export default async function ProductsPage({ searchParams }: { searchParams: Promise<SearchParamsInput> }) {
+  const resolvedSearchParams = await searchParams;
+  const query = paramValue(resolvedSearchParams.q);
+  const categorySlug = paramValue(resolvedSearchParams.category);
+  const sort = paramValue(resolvedSearchParams.sort) || "relevance";
 
   const categories = await prisma.category.findMany({
     orderBy: [{ createdAt: "asc" }],
@@ -59,7 +60,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
   if (categorySlug) {
     const category = categories.find((item) => item.slug === categorySlug);
     categoryIds = category
-      ? Array.from(new Set([...descendantIds(category.id, categories), ...ancestorIds(category.id, categories)]))
+      ? descendantIds(category.id, categories)
       : [];
   }
 
@@ -127,8 +128,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
           {products.map((product) => (
             <Link key={product.id} href={`/products/${product.slug}`} className="block rounded-md border border-slate-200 bg-white p-4 shadow-sm">
               <div className="relative h-[170px] overflow-hidden rounded bg-slate-100">
-                <Image
-                  src={product.images[0]?.url || "/frame-square.png"}
+                <SafeImage
+                  src={product.mainImage || product.images[0]?.url || "/frame-square.png"}
                   alt={product.images[0]?.alt || product.name}
                   fill
                   className="object-cover"

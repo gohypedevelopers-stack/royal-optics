@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import Link from "next/link";
 import { Heart, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
@@ -14,10 +14,12 @@ type ProductCardProps = {
     price: number;
     rating: number;
     customizationType: string;
+    mainImage?: string | null;
     images: { url: string; alt: string | null }[];
     colors: string[];
   };
 };
+
 
 export default function ProductCard({ product }: ProductCardProps) {
   async function addToWishlist() {
@@ -54,8 +56,8 @@ export default function ProductCard({ product }: ProductCardProps) {
     <article className="group overflow-hidden rounded-md border border-slate-200 bg-white card-shadow">
       <Link href={`/products/${product.slug}`} className="block">
         <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-          <Image
-            src={product.images[0]?.url || "/frame-square.png"}
+          <SafeImage
+            src={product.mainImage || product.images[0]?.url || "/frame-square.png"}
             alt={product.images[0]?.alt || product.name}
             fill
             className="object-cover transition duration-300 group-hover:scale-[1.03]"

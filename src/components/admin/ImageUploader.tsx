@@ -50,12 +50,27 @@ export default function ImageUploader({ label, value, onChange, multiple = false
     try {
       const filePath = await requestUploadPath(file);
       if (!filePath) throw new Error("Upload path not returned");
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("filePath", filePath);
+
+      const uploadResponse = await fetch("/api/uploads", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to upload image file to server");
+      }
+
       if (multiple) {
         onChange([...value, filePath]);
       } else {
         onChange([filePath]);
       }
-      toast.success("Image selected");
+      toast.success("Image uploaded successfully");
     } catch (error: any) {
       toast.error(error.message || "Failed to select image");
     } finally {

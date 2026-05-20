@@ -30,14 +30,15 @@ function buildQuery(searchParams: Record<string, string | string[] | undefined>,
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const q = String(searchParams.q || "").trim();
-  const status = String(searchParams.status || "").trim();
-  const dateFrom = String(searchParams.dateFrom || "").trim();
-  const dateTo = String(searchParams.dateTo || "").trim();
-  const page = parsePage(String(searchParams.page || "1"), 1);
-  const limit = parseLimit(String(searchParams.limit || "10"), 10, 50);
+  const resolvedSearchParams = await searchParams;
+  const q = String(resolvedSearchParams.q || "").trim();
+  const status = String(resolvedSearchParams.status || "").trim();
+  const dateFrom = String(resolvedSearchParams.dateFrom || "").trim();
+  const dateTo = String(resolvedSearchParams.dateTo || "").trim();
+  const page = parsePage(String(resolvedSearchParams.page || "1"), 1);
+  const limit = parseLimit(String(resolvedSearchParams.limit || "10"), 10, 50);
 
   const where: Prisma.OrderWhereInput = {
     ...(status ? { status: status as any } : {}),
@@ -177,10 +178,10 @@ export default async function AdminOrdersPage({
         </p>
         <div className="flex gap-2">
           <Button asChild variant="outline" size="sm" disabled={page <= 1}>
-            <Link href={`/admin/orders?${buildQuery(searchParams, page - 1)}`}>Previous</Link>
+            <Link href={`/admin/orders?${buildQuery(resolvedSearchParams, page - 1)}`}>Previous</Link>
           </Button>
           <Button asChild variant="outline" size="sm" disabled={page >= totalPages}>
-            <Link href={`/admin/orders?${buildQuery(searchParams, page + 1)}`}>Next</Link>
+            <Link href={`/admin/orders?${buildQuery(resolvedSearchParams, page + 1)}`}>Next</Link>
           </Button>
         </div>
       </div>

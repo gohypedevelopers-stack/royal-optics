@@ -76,6 +76,17 @@ export async function POST(request: Request) {
     const mainImage = payload.mainImage || imageUrls[0] || null;
     const featured = payload.featured || payload.isFeatured;
 
+    // Combine mainImage and additionalImages so the primary image is always correct in ProductImage
+    const combinedImages: string[] = [];
+    if (mainImage) {
+      combinedImages.push(mainImage);
+    }
+    imageUrls.forEach((url) => {
+      if (url !== mainImage && !combinedImages.includes(url)) {
+        combinedImages.push(url);
+      }
+    });
+
     const product = await prisma.product.create({
       data: {
         name: payload.name,
@@ -96,7 +107,7 @@ export async function POST(request: Request) {
         isFeatured: payload.isFeatured,
         featured,
         images: {
-          create: imageUrls.map((url, index) => ({
+          create: combinedImages.map((url, index) => ({
             url,
             alt: payload.name,
             sortOrder: index,

@@ -2,12 +2,13 @@ export const dynamic = "force-dynamic";
 
 import LoginForm from "@/components/LoginForm";
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const redirectParam = searchParams.redirect;
+  const resolvedSearchParams = await searchParams;
+  const redirectParam = resolvedSearchParams.redirect;
   const redirectTo = Array.isArray(redirectParam) ? redirectParam[0] : redirectParam || "/";
 
   return (

@@ -7,9 +7,10 @@ import { prisma } from "@/lib/prisma";
 export default async function AdminLensPricesPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const q = String(searchParams.q || "").trim();
+  const resolvedSearchParams = await searchParams;
+  const q = String(resolvedSearchParams.q || "").trim();
   const items = await prisma.lensPrice.findMany({
     where: q
       ? {

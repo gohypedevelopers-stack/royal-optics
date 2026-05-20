@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatINR } from "@/lib/format";
 import { parseLimit, parsePage } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
+import { getGoogleDriveDirectLink } from "@/components/SafeImage";
 
 function buildQuery(searchParams: Record<string, string | string[] | undefined>, nextPage: number) {
   const params = new URLSearchParams();
@@ -29,14 +30,15 @@ function buildQuery(searchParams: Record<string, string | string[] | undefined>,
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const q = String(searchParams.q || "").trim();
-  const categoryId = String(searchParams.categoryId || "").trim();
-  const status = String(searchParams.status || "").trim();
-  const productType = String(searchParams.productType || "").trim();
-  const page = parsePage(String(searchParams.page || "1"), 1);
-  const limit = parseLimit(String(searchParams.limit || "10"), 10, 50);
+  const resolvedSearchParams = await searchParams;
+  const q = String(resolvedSearchParams.q || "").trim();
+  const categoryId = String(resolvedSearchParams.categoryId || "").trim();
+  const status = String(resolvedSearchParams.status || "").trim();
+  const productType = String(resolvedSearchParams.productType || "").trim();
+  const page = parsePage(String(resolvedSearchParams.page || "1"), 1);
+  const limit = parseLimit(String(resolvedSearchParams.limit || "10"), 10, 50);
 
   const where: Prisma.ProductWhereInput = {
     ...(q
@@ -135,9 +137,8 @@ export default async function AdminProductsPage({
             <TableRow key={item.id}>
               <TableCell>
                 <div className="flex items-center gap-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={item.mainImage || item.images[0]?.url || "/frame-square.png"}
+                    src={getGoogleDriveDirectLink(item.mainImage || item.images[0]?.url || "") || item.mainImage || item.images[0]?.url || "/frame-square.png"}
                     alt={item.name}
                     className="h-10 w-10 rounded-md border border-slate-200 object-cover"
                   />
@@ -151,7 +152,7 @@ export default async function AdminProductsPage({
               <TableCell>{String(item.productType || item.customizationType).replaceAll("_", " ")}</TableCell>
               <TableCell>{formatINR(Number(item.price))}</TableCell>
               <TableCell>
-                <StatusBadge value={item.stock <= 5 ? "PENDING" : item.stock <= 20 ? "CONFIRMED" : "ACTIVE"} />
+                <StatusBadge value={item.stock <= 0 ? "OUT_OF_STOCK" : item.stock <= 5 ? "LOW_STOCK" : "IN_STOCK"} />
                 <p className="mt-1 text-xs text-slate-500">{item.stock} units</p>
               </TableCell>
               <TableCell>
@@ -180,10 +181,10 @@ export default async function AdminProductsPage({
         </p>
         <div className="flex gap-2">
           <Button asChild variant="outline" size="sm" disabled={page <= 1}>
-            <Link href={`/admin/products?${buildQuery(searchParams, page - 1)}`}>Previous</Link>
+            <Link href={`/admin/products?${buildQuery(resolvedSearchParams, page - 1)}`}>Previous</Link>
           </Button>
           <Button asChild variant="outline" size="sm" disabled={page >= totalPages}>
-            <Link href={`/admin/products?${buildQuery(searchParams, page + 1)}`}>Next</Link>
+            <Link href={`/admin/products?${buildQuery(resolvedSearchParams, page + 1)}`}>Next</Link>
           </Button>
         </div>
       </div>

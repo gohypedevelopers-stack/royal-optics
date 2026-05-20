@@ -57,7 +57,7 @@ export default async function ProductDetailPage({
       <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5 lg:p-6">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.08),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(245,158,11,0.09),transparent_38%)]" />
         <div className="relative grid gap-6 xl:grid-cols-[1.07fr_0.93fr] xl:items-start">
-          <ProductImageGallery images={product.images} name={product.name} />
+          <ProductImageGallery images={product.images} name={product.name} mainImage={product.mainImage} />
           <ProductDetails
             product={{
               id: product.id,
@@ -94,6 +94,7 @@ export default async function ProductDetailPage({
                   price: Number(item.price),
                   rating: Number(item.rating),
                   customizationType: item.customizationType,
+                  mainImage: item.mainImage,
                   images: item.images,
                   colors: item.colors,
                 }}

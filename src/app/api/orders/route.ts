@@ -143,7 +143,7 @@ export async function POST(request: Request) {
                 selectedColor: item.selectedColor,
                 lensDetails: item.lensDetails,
                 productName: item.product.name,
-                productImage: item.product.images[0]?.url || null,
+                productImage: item.product.mainImage || item.product.images[0]?.url || null,
                 mainLensType: lensFields.mainLensType,
                 prescriptionType: lensFields.prescriptionType,
                 readerRight: lensFields.readerRight,

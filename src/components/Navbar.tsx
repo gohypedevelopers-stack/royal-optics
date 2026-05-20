@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import UserLogoutButton from "@/components/UserLogoutButton";
@@ -36,10 +36,16 @@ function categoryOrder(slug: string) {
 export default function Navbar({ categories, cartCount, wishlistCount, isLoggedIn, isAdmin }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [suggestions, setSuggestions] = useState<Array<{ id: string; name: string; slug: string }>>([]);
+
+  useEffect(() => {
+    setSelectedCategory(searchParams.get("category") || "all");
+    setQuery(searchParams.get("q") || "");
+  }, [searchParams]);
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -69,10 +75,9 @@ export default function Navbar({ categories, cartCount, wishlistCount, isLoggedI
   function submitSearch(event: React.FormEvent) {
     event.preventDefault();
     const value = query.trim();
-    if (!value) return;
 
     const params = new URLSearchParams();
-    params.set("q", value);
+    if (value) params.set("q", value);
     if (selectedCategory !== "all") params.set("category", selectedCategory);
     setSuggestions([]);
     router.push(`/products?${params.toString()}`);
@@ -133,7 +138,19 @@ export default function Navbar({ categories, cartCount, wishlistCount, isLoggedI
               <label className="relative min-w-[120px] border-r border-slate-300 bg-slate-50">
                 <select
                   value={selectedCategory}
-                  onChange={(event) => setSelectedCategory(event.target.value)}
+                  onChange={(event) => {
+                    const nextCategory = event.target.value;
+                    setSelectedCategory(nextCategory);
+                    const params = new URLSearchParams();
+                    const currentQuery = query.trim();
+                    if (currentQuery) {
+                      params.set("q", currentQuery);
+                    }
+                    if (nextCategory !== "all") {
+                      params.set("category", nextCategory);
+                    }
+                    router.push(`/products?${params.toString()}`);
+                  }}
                   className="h-10 w-full appearance-none bg-transparent px-3 pr-8 text-sm text-slate-700 outline-none"
                 >
                   <option value="all">All</option>

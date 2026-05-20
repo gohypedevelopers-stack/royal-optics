@@ -33,13 +33,14 @@ function formatDiscount(discountType: string, discountValue: number) {
 export default async function AdminCouponsPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const q = String(searchParams.q || "").trim();
-  const active = String(searchParams.active || "").trim();
-  const discountType = String(searchParams.discountType || "").trim();
-  const page = parsePage(String(searchParams.page || "1"), 1);
-  const limit = parseLimit(String(searchParams.limit || "10"), 10, 50);
+  const resolvedSearchParams = await searchParams;
+  const q = String(resolvedSearchParams.q || "").trim();
+  const active = String(resolvedSearchParams.active || "").trim();
+  const discountType = String(resolvedSearchParams.discountType || "").trim();
+  const page = parsePage(String(resolvedSearchParams.page || "1"), 1);
+  const limit = parseLimit(String(resolvedSearchParams.limit || "10"), 10, 50);
 
   const where: Prisma.PromoCodeWhereInput = {
     ...(q
@@ -167,10 +168,10 @@ export default async function AdminCouponsPage({
         </p>
         <div className="flex gap-2">
           <Button asChild variant="outline" size="sm" disabled={page <= 1}>
-            <Link href={`/admin/coupons?${buildQuery(searchParams, page - 1)}`}>Previous</Link>
+            <Link href={`/admin/coupons?${buildQuery(resolvedSearchParams, page - 1)}`}>Previous</Link>
           </Button>
           <Button asChild variant="outline" size="sm" disabled={page >= totalPages}>
-            <Link href={`/admin/coupons?${buildQuery(searchParams, page + 1)}`}>Next</Link>
+            <Link href={`/admin/coupons?${buildQuery(resolvedSearchParams, page + 1)}`}>Next</Link>
           </Button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 export const revalidate = 180;
 
 import Link from "next/link";
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import { Flame, Glasses, Eye, HandHeart, Tag, MessageCircle, Contact, Package } from "lucide-react";
 import CategoryGrid from "@/components/CategoryGrid";
 import HeroSlider from "@/components/HeroSlider";
@@ -75,6 +75,7 @@ async function getTrendingProducts() {
         slug: true,
         name: true,
         price: true,
+        mainImage: true,
         images: {
           orderBy: { sortOrder: "asc" },
           take: 1,
@@ -251,8 +252,8 @@ export default async function HomePage() {
                     className="group block w-[170px] snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md sm:w-[210px] md:w-[240px]"
                   >
                     <div className="relative h-[150px] w-full overflow-hidden rounded-xl bg-slate-100 md:h-[190px]">
-                      <Image
-                        src={product.images[0]?.url || "/frame-square.png"}
+                      <SafeImage
+                        src={product.mainImage || product.images[0]?.url || "/frame-square.png"}
                         alt={product.images[0]?.alt || product.name}
                         fill
                         quality={78}
@@ -277,7 +278,7 @@ export default async function HomePage() {
                 className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="relative h-[230px] w-full bg-slate-100 md:h-[280px]">
-                  <Image src={card.image} alt={card.title} fill quality={80} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+                  <SafeImage src={card.image} alt={card.title} fill quality={80} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
                 </div>
                 <div className="space-y-2.5 px-6 py-6">

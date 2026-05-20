@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ type CartItem = {
     name: string;
     slug: string;
     customizationType: string;
+    mainImage?: string | null;
     images: { url: string; alt: string | null }[];
   };
 };
@@ -113,8 +114,8 @@ export default function CartList({ items }: { items: CartItem[] }) {
                   <td className="px-3 py-3">
                     <div className="flex min-w-[240px] items-start gap-3">
                       <div className="relative h-16 w-16 overflow-hidden rounded-md border border-slate-200">
-                        <Image
-                          src={item.product.images[0]?.url || "/frame-square.png"}
+                        <SafeImage
+                          src={item.product.mainImage || item.product.images[0]?.url || "/frame-square.png"}
                           alt={item.product.images[0]?.alt || item.product.name}
                           fill
                           className="object-cover"

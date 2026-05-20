@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
-export default function SearchPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
-  const q = String(searchParams.q || "");
+export default async function SearchPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const resolvedSearchParams = await searchParams;
+  const q = String(resolvedSearchParams.q || "");
   redirect(`/products?q=${encodeURIComponent(q)}`);
 }

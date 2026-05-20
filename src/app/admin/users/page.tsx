@@ -28,12 +28,13 @@ function buildQuery(searchParams: Record<string, string | string[] | undefined>,
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const q = String(searchParams.q || "").trim();
-  const status = String(searchParams.status || "").trim();
-  const page = parsePage(String(searchParams.page || "1"), 1);
-  const limit = parseLimit(String(searchParams.limit || "10"), 10, 50);
+  const resolvedSearchParams = await searchParams;
+  const q = String(resolvedSearchParams.q || "").trim();
+  const status = String(resolvedSearchParams.status || "").trim();
+  const page = parsePage(String(resolvedSearchParams.page || "1"), 1);
+  const limit = parseLimit(String(resolvedSearchParams.limit || "10"), 10, 50);
 
   const where: Prisma.UserWhereInput = {
     ...(q
@@ -136,10 +137,10 @@ export default async function AdminUsersPage({
         </p>
         <div className="flex gap-2">
           <Button asChild variant="outline" size="sm" disabled={page <= 1}>
-            <Link href={`/admin/users?${buildQuery(searchParams, page - 1)}`}>Previous</Link>
+            <Link href={`/admin/users?${buildQuery(resolvedSearchParams, page - 1)}`}>Previous</Link>
           </Button>
           <Button asChild variant="outline" size="sm" disabled={page >= totalPages}>
-            <Link href={`/admin/users?${buildQuery(searchParams, page + 1)}`}>Next</Link>
+            <Link href={`/admin/users?${buildQuery(resolvedSearchParams, page + 1)}`}>Next</Link>
           </Button>
         </div>
       </div>

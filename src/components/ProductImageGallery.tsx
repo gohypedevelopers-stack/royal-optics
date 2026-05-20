@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
 
@@ -10,16 +10,25 @@ type ProductImage = {
   alt: string | null;
 };
 
-export default function ProductImageGallery({ images, name }: { images: ProductImage[]; name: string }) {
+export default function ProductImageGallery({ images, name, mainImage }: { images: ProductImage[]; name: string; mainImage?: string | null }) {
   const [active, setActive] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
   const [zoomOrigin, setZoomOrigin] = useState({ x: 50, y: 50 });
 
-  const safeImages = useMemo(
-    () => (images.length ? images : [{ id: "fallback", url: "/frame-square.png", alt: name }]),
-    [images, name],
-  );
+  const safeImages = useMemo(() => {
+    const combined: ProductImage[] = [];
+    if (mainImage) {
+      combined.push({ id: "main", url: mainImage, alt: name });
+    }
+    images.forEach((img) => {
+      if (img.url !== mainImage) {
+        combined.push(img);
+      }
+    });
+    if (combined.length) return combined;
+    return [{ id: "fallback", url: "/frame-square.png", alt: name }];
+  }, [images, mainImage, name]);
   const activeImage = safeImages[active] || safeImages[0];
   const hasMultiple = safeImages.length > 1;
 
@@ -78,7 +87,7 @@ export default function ProductImageGallery({ images, name }: { images: ProductI
             className="group relative block w-full overflow-hidden rounded-xl border border-slate-200 bg-white text-left"
           >
             <div className="relative aspect-[4/3] overflow-hidden">
-              <Image
+              <SafeImage
                 src={activeImage?.url || "/frame-square.png"}
                 alt={activeImage?.alt || name}
                 fill
@@ -116,7 +125,7 @@ export default function ProductImageGallery({ images, name }: { images: ProductI
               type="button"
               aria-label={`View image ${index + 1}`}
             >
-              <Image src={image.url} alt={image.alt || name} fill sizes="80px" className="object-contain p-1.5" />
+              <SafeImage src={image.url} alt={image.alt || name} fill sizes="80px" className="object-contain p-1.5" />
             </button>
           ))}
         </div>
@@ -156,7 +165,7 @@ export default function ProductImageGallery({ images, name }: { images: ProductI
 
           <div className="mx-auto flex h-full max-w-7xl flex-col gap-4">
             <div className="relative flex-1 overflow-hidden rounded-2xl border border-white/20 bg-black/30">
-              <Image
+              <SafeImage
                 src={activeImage?.url || "/frame-square.png"}
                 alt={activeImage?.alt || name}
                 fill
@@ -176,7 +185,7 @@ export default function ProductImageGallery({ images, name }: { images: ProductI
                   }`}
                   aria-label={`View fullscreen image ${index + 1}`}
                 >
-                  <Image src={image.url} alt={image.alt || name} fill sizes="80px" className="object-contain p-1 bg-white" />
+                  <SafeImage src={image.url} alt={image.alt || name} fill sizes="80px" className="object-contain p-1 bg-white" />
                 </button>
               ))}
             </div>

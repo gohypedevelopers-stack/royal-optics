@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import SafeImage from "@/components/SafeImage";
 import Link from "next/link";
 import { ShoppingCart, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ type WishlistItem = {
     slug: string;
     name: string;
     price: number;
+    mainImage?: string | null;
     images: { url: string; alt: string | null }[];
   };
 };
@@ -69,8 +70,8 @@ export default function WishlistList({ items }: { items: WishlistItem[] }) {
       {items.map((item) => (
         <article key={item.id} className="rounded-xl border bg-white p-4">
           <Link href={`/products/${item.product.slug}`} className="relative block aspect-[4/3] overflow-hidden rounded-lg border">
-            <Image
-              src={item.product.images[0]?.url || "/frame-square.png"}
+            <SafeImage
+              src={item.product.mainImage || item.product.images[0]?.url || "/frame-square.png"}
               alt={item.product.images[0]?.alt || item.product.name}
               fill
               className="object-cover"

@@ -42,6 +42,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const mainImage = payload.mainImage || imageUrls[0] || null;
     const featured = payload.featured || payload.isFeatured;
 
+    // Combine mainImage and additionalImages so the primary image is always correct in ProductImage
+    const combinedImages: string[] = [];
+    if (mainImage) {
+      combinedImages.push(mainImage);
+    }
+    imageUrls.forEach((url) => {
+      if (url !== mainImage && !combinedImages.includes(url)) {
+        combinedImages.push(url);
+      }
+    });
+
     const item = await prisma.$transaction(async (tx) => {
       const product = await tx.product.update({
         where: { id },
@@ -67,9 +78,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       });
 
       await tx.productImage.deleteMany({ where: { productId: id } });
-      if (imageUrls.length) {
+      if (combinedImages.length) {
         await tx.productImage.createMany({
-          data: imageUrls.map((url, index) => ({
+          data: combinedImages.map((url, index) => ({
             productId: id,
             url,
             alt: payload.name,

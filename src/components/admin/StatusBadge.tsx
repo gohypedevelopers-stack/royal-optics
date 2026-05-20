@@ -15,6 +15,9 @@ const variants: Record<string, "default" | "success" | "warning" | "danger" | "i
   CANCELLED: "danger",
   REJECTED: "danger",
   BLOCKED: "danger",
+  LOW_STOCK: "warning",
+  OUT_OF_STOCK: "danger",
+  IN_STOCK: "success",
 };
 
 export default function StatusBadge({ value }: { value: string | null | undefined }) {

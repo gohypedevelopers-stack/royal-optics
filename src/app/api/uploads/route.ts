@@ -4,12 +4,11 @@ import path from "path";
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-    const filePathVal = formData.get("filePath") as string | null;
+    const { searchParams } = new URL(request.url);
+    const filePathVal = searchParams.get("filePath");
 
-    if (!file || !filePathVal) {
-      return NextResponse.json({ error: "Missing file or filePath" }, { status: 400 });
+    if (!filePathVal) {
+      return NextResponse.json({ error: "Missing filePath query parameter" }, { status: 400 });
     }
 
     // Security check: must start with /uploads/ and contain no path traversal sequences (like ..)
@@ -17,8 +16,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid upload path" }, { status: 400 });
     }
 
-    const arrayBuffer = await file.arrayBuffer();
+    const arrayBuffer = await request.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    if (buffer.length === 0) {
+      return NextResponse.json({ error: "Empty file body" }, { status: 400 });
+    }
 
     // Save path inside public directory
     const publicPath = path.join(process.cwd(), "public", filePathVal);

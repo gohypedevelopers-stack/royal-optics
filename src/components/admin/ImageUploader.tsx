@@ -51,13 +51,12 @@ export default function ImageUploader({ label, value, onChange, multiple = false
       const filePath = await requestUploadPath(file);
       if (!filePath) throw new Error("Upload path not returned");
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("filePath", filePath);
-
-      const uploadResponse = await fetch("/api/uploads", {
+      const uploadResponse = await fetch(`/api/uploads?filePath=${encodeURIComponent(filePath)}`, {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": file.type || "application/octet-stream",
+        },
+        body: file,
       });
 
       if (!uploadResponse.ok) {

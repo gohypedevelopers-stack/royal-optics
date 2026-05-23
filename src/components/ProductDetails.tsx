@@ -27,6 +27,31 @@ function colorValue(color: string) {
   return color.trim() || "#94a3b8";
 }
 
+function parseDescriptionTable(description: string) {
+  const normalized = description.replace(/:\s*-/g, ":").replace(/\s+/g, " ").trim();
+  if (!normalized.includes(":")) {
+    return [];
+  }
+
+  const matches = Array.from(normalized.matchAll(/([A-Za-z][A-Za-z0-9 /_]+):\s*/g));
+  if (matches.length <= 1) {
+    return [];
+  }
+
+  return matches
+    .map((match, index) => {
+      const nextMatch = matches[index + 1];
+      const valueStart = match.index + match[0].length;
+      const valueEnd = nextMatch ? nextMatch.index : normalized.length;
+      const value = normalized.slice(valueStart, valueEnd).trim();
+      return {
+        key: match[1].trim(),
+        value: value || "-",
+      };
+    })
+    .filter((item) => item.key);
+}
+
 export default function ProductDetails({ product, lensPrices, supportPhone }: ProductDetailsProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState(product.colors[0] || "");
@@ -35,6 +60,7 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
   const categoryLabel = product.categoryName || product.customizationType.replace(/_/g, " ");
   const fullStars = Math.max(0, Math.min(5, Math.round(Number(product.rating) || 0)));
   const isOutOfStock = product.stock <= 0;
+  const descriptionTable = parseDescriptionTable(product.description);
 
   const stockMeta = useMemo(() => {
     if (isOutOfStock) {
@@ -74,7 +100,7 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
 
   return (
     <div className="xl:sticky xl:top-24">
-      <div className="space-y-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+      <div className="store-card space-y-5 p-4 text-[0.98rem] text-slate-700 sm:p-6">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">
             {categoryLabel}
@@ -104,11 +130,11 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Category</p>
             <p className="mt-1 text-sm font-semibold text-slate-800">{categoryLabel}</p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Price</p>
             <p className="mt-1 text-sm font-semibold text-slate-800">{formatINR(Number(product.price))}</p>
           </div>
@@ -136,9 +162,26 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-600">Description</p>
-          <p className="mt-2 text-base leading-7 text-slate-700">{product.description}</p>
+          {descriptionTable.length ? (
+            <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
+              <table className="w-full text-sm">
+                <tbody>
+                  {descriptionTable.map((item, index) => (
+                    <tr key={`${item.key}-${index}`} className="border-b last:border-b-0">
+                      <th className="w-1/2 bg-slate-50 px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                        {item.key}
+                      </th>
+                      <td className="px-3 py-2 text-sm font-medium text-slate-700">{item.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="mt-2 text-base leading-7 text-slate-700">{product.description}</p>
+          )}
         </div>
 
         <div className="grid gap-2 text-xs font-semibold text-slate-600 sm:grid-cols-3">

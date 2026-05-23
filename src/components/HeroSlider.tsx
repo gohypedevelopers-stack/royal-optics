@@ -73,8 +73,8 @@ export default function HeroSlider({ banners }: { banners: Banner[] }) {
   const nextSlide = () => setIndex((prev) => (prev + 1) % slides.length);
 
   return (
-    <section className="mt-3 w-full px-3 md:px-4 lg:px-5">
-      <div className="relative h-[380px] overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 shadow-[0_20px_60px_rgba(15,23,42,0.15)] md:h-[560px]">
+    <section className="store-shell mt-3">
+      <div className="relative h-[380px] overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-100 shadow-[0_20px_60px_rgba(15,23,42,0.15)] md:h-[560px]">
         <div className="flex h-full transition-transform duration-700 ease-out" style={{ transform: `translateX(-${index * 100}%)` }}>
           {slides.map((banner, i) => (
             <article key={banner.id} className="relative h-full min-w-full">
@@ -95,16 +95,16 @@ export default function HeroSlider({ banners }: { banners: Banner[] }) {
 
         <div className="absolute inset-0 z-10 flex items-center px-6 md:px-14">
           <div key={slides[index].id} className="max-w-[680px] text-white animate-hero-fade-up">
-            <p className="mb-3 inline-flex rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold tracking-[0.16em] text-white/90 md:text-sm">
+            <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/10 px-3.5 py-1.5 text-[0.72rem] font-semibold tracking-[0.16em] text-white/90 md:text-[0.82rem]">
               ROYAL OPTICS PREMIUM
             </p>
-            <h1 className="text-3xl font-bold leading-tight drop-shadow md:text-6xl">{slides[index].title}</h1>
+            <h1 className="text-[2.2rem] font-semibold leading-[1.02] tracking-[-0.04em] drop-shadow md:text-[4.4rem]">{slides[index].title}</h1>
             {slides[index].subtitle && (
-              <p className="mt-3 max-w-[580px] text-sm text-white/90 md:text-lg">{slides[index].subtitle}</p>
+              <p className="mt-4 max-w-[580px] text-[0.98rem] leading-7 text-white/90 md:text-[1.1rem]">{slides[index].subtitle}</p>
             )}
             {slides[index].ctaHref && slides[index].ctaLabel && (
               <div className="mt-6">
-                <Button asChild size="lg" className="rounded-xl bg-amber-400 px-6 text-slate-900 hover:bg-amber-300">
+                <Button asChild size="lg" className="rounded-full bg-amber-400 px-7 text-[0.96rem] font-semibold text-slate-900 hover:bg-amber-300">
                   <Link href={slides[index].ctaHref}>{slides[index].ctaLabel}</Link>
                 </Button>
               </div>
@@ -146,17 +146,17 @@ export default function HeroSlider({ banners }: { banners: Banner[] }) {
       </div>
 
       <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md">
+        <div className="store-card store-card-hover p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Ultra Light Frames</p>
-          <p className="mt-1.5 text-sm text-slate-700">Premium build quality with all-day comfort for daily wear.</p>
+          <p className="mt-2 text-[0.96rem] leading-6 text-slate-700">Premium build quality with all-day comfort for daily wear.</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md">
+        <div className="store-card store-card-hover p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Blue Cut & UV Lenses</p>
-          <p className="mt-1.5 text-sm text-slate-700">High-clarity lenses designed to protect your eyes indoors and outdoors.</p>
+          <p className="mt-2 text-[0.96rem] leading-6 text-slate-700">High-clarity lenses designed to protect your eyes indoors and outdoors.</p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md">
+        <div className="store-card store-card-hover p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Fast Dispatch</p>
-          <p className="mt-1.5 text-sm text-slate-700">Quick fulfillment on top-selling collections with secure packaging.</p>
+          <p className="mt-2 text-[0.96rem] leading-6 text-slate-700">Quick fulfillment on top-selling collections with secure packaging.</p>
         </div>
       </div>
     </section>

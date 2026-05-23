@@ -2,7 +2,7 @@ export const revalidate = 180;
 
 import Link from "next/link";
 import SafeImage from "@/components/SafeImage";
-import { Flame, Glasses, Eye, HandHeart, Tag, MessageCircle, Contact, Package } from "lucide-react";
+import { Flame, Glasses, Eye, HandHeart, Tag, Contact, Package } from "lucide-react";
 import CategoryGrid from "@/components/CategoryGrid";
 import HeroSlider from "@/components/HeroSlider";
 import { Button } from "@/components/ui/button";
@@ -233,61 +233,79 @@ export default async function HomePage() {
     <div className="pb-12">
       <HeroSlider banners={banners} />
 
-      <div className="mt-12 w-full space-y-14 px-3 md:px-4 lg:px-5">
+      <div className="store-shell mt-12 space-y-14">
         <CategoryGrid categories={categories} />
 
-        <section className="w-full">
-          <h2 className="flex items-center justify-center gap-2 text-center text-3xl font-semibold tracking-tight text-slate-900 md:text-5xl">
+        <section className="store-section">
+          <h2 className="store-section-title flex items-center justify-center gap-2">
             <Flame size={26} className="text-amber-500" /> Trending Products
           </h2>
           {trendingProducts.length === 0 ? (
-            <p className="mt-6 text-center text-sm text-slate-500">No trending products available right now.</p>
+            <p className="mt-6 text-center text-[0.96rem] text-slate-500">No trending products available right now.</p>
           ) : (
-            <div className="mt-7 overflow-x-auto pb-2 [scrollbar-width:thin]">
-              <div className="flex w-max snap-x snap-mandatory gap-4 pr-2 md:gap-5">
+            <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {trendingProducts.map((product) => (
                   <Link
                     key={product.id}
                     href={`/products/${product.slug}`}
-                    className="group block w-[170px] snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md sm:w-[210px] md:w-[240px]"
+                    className="group overflow-hidden rounded-[1.5rem] border border-slate-200/90 bg-white shadow-[0_16px_40px_rgba(15,23,42,0.07)] transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-[0_22px_50px_rgba(15,23,42,0.12)]"
                   >
-                    <div className="relative h-[150px] w-full overflow-hidden rounded-xl bg-slate-100 md:h-[190px]">
+                    <div className="relative aspect-[16/9] w-full overflow-hidden bg-[radial-gradient(circle_at_top,#f8fafc,#e2e8f0)]">
                       <SafeImage
                         src={product.mainImage || product.images[0]?.url || "/frame-square.png"}
                         alt={product.images[0]?.alt || product.name}
                         fill
                         quality={78}
-                        sizes="(max-width: 768px) 45vw, (max-width: 1200px) 30vw, 22vw"
-                        className="object-cover transition duration-500 group-hover:scale-[1.06]"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
+                        className="object-cover transition duration-500 group-hover:scale-[1.05]"
                       />
+                      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white via-white/85 to-transparent" />
+                      <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate-600 shadow-sm">
+                        Trending
+                      </div>
                     </div>
-                    <p className="mt-3.5 line-clamp-1 text-sm font-semibold text-slate-900 md:text-base">{product.name}</p>
-                    <p className="mt-0.5 text-base font-semibold text-emerald-700">{formatINR(Number(product.price))}</p>
+                    <div className="space-y-3 p-4">
+                      <div className="space-y-2">
+                        <p className="line-clamp-2 min-h-[2.6rem] text-[1rem] font-semibold leading-6 tracking-[-0.02em] text-slate-900 md:text-[1.04rem]">
+                          {product.name}
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+                        <p className="text-[1.05rem] font-semibold text-emerald-700">{formatINR(Number(product.price))}</p>
+                        <span className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition group-hover:bg-sky-700">
+                          View Product
+                        </span>
+                      </div>
+                    </div>
                   </Link>
                 ))}
-              </div>
             </div>
           )}
         </section>
 
-        <section className="w-full">
+        <section className="store-section">
           <div className="grid gap-5 md:grid-cols-2">
-            {showcaseCards.map((card) => (
+            {showcaseCards.map((card, index) => (
               <article
                 key={card.title}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="group relative overflow-hidden rounded-[2rem] border border-slate-200/90 bg-white shadow-[0_20px_55px_rgba(15,23,42,0.09)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_65px_rgba(15,23,42,0.14)]"
               >
-                <div className="relative h-[230px] w-full bg-slate-100 md:h-[280px]">
-                  <SafeImage src={card.image} alt={card.title} fill quality={80} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
-                </div>
-                <div className="space-y-2.5 px-6 py-6">
-                  <h3 className="flex items-center gap-2 text-2xl font-semibold leading-none text-slate-900 md:text-[34px]">
+                <div className="relative h-[270px] w-full bg-slate-100 md:h-[330px]">
+                  <SafeImage src={card.image} alt={card.title} fill quality={80} sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition duration-700 group-hover:scale-[1.04]" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-900/10 to-transparent" />
+                  <div className="absolute left-6 top-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/25 bg-white/10 text-white backdrop-blur-sm">
                     {card.icon}
-                    {card.title}
-                  </h3>
-                  <p className="text-sm text-slate-600 md:text-base">{card.description}</p>
-                  <Button asChild variant="outline" className="rounded-xl">
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 p-6 text-white md:p-7">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/75">Featured Collection</p>
+                    <h3 className="mt-2 text-[1.9rem] font-semibold leading-none tracking-[-0.04em] md:text-[2.4rem]">
+                      {card.title}
+                    </h3>
+                  </div>
+                </div>
+                <div className="space-y-4 p-6 md:p-7">
+                  <p className="text-[1rem] leading-7 text-slate-600">{card.description}</p>
+                  <Button asChild variant={index % 2 === 0 ? "default" : "outline"} className="rounded-full px-6">
                     <Link href={card.href}>{card.cta}</Link>
                   </Button>
                 </div>
@@ -296,31 +314,66 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="w-full">
-          <h2 className="flex items-center justify-center gap-2 text-center text-3xl font-semibold tracking-tight text-slate-900 md:text-5xl">
-            <MessageCircle size={24} className="text-blue-700" /> What Our Customers Say
-          </h2>
+        <section className="store-section">
+          <div className="relative overflow-hidden rounded-[2.25rem] border border-slate-200 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.12),transparent_45%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.1),transparent_52%)] px-5 py-10 md:px-10">
+            <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-blue-200/35 blur-3xl" />
+            <div className="pointer-events-none absolute -left-20 bottom-0 h-52 w-52 rounded-full bg-amber-200/30 blur-3xl" />
 
-          <div className="mt-7 rounded-2xl border border-slate-200 bg-white px-5 py-8 shadow-sm md:px-7">
-            {testimonials.length === 0 ? (
-              <p className="text-center text-sm text-slate-500">No testimonials yet. Be the first to add one.</p>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-3">
-                {testimonials.slice(0, 3).map((item) => (
-                  <article key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
-                    <p className="line-clamp-3 text-sm text-slate-700">&quot;{item.message}&quot;</p>
-                    <p className="mt-1 text-xs text-slate-500">Rating {item.rating}/5</p>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">{item.name}</p>
-                  </article>
-                ))}
-              </div>
-            )}
+            <div className="relative text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.26em] text-blue-600">Testimonials</p>
+              <h2 className="mt-3 text-[2.1rem] font-semibold leading-tight tracking-[-0.03em] text-slate-900 md:text-[2.6rem]">
+                What Our Customers Say
+              </h2>
+              <p className="mx-auto mt-3 max-w-2xl text-[0.98rem] leading-7 text-slate-600">
+                Honest feedback from customers who found their perfect pair.
+              </p>
+            </div>
 
-            <div className="mt-6 flex flex-wrap justify-center gap-2">
-              <Button asChild variant="secondary" className="rounded-xl">
+            <div className="relative mt-8">
+              {testimonials.length === 0 ? (
+                <p className="text-center text-[0.96rem] text-slate-500">No testimonials yet. Be the first to add one.</p>
+              ) : (
+                <div className="grid gap-5 md:grid-cols-3">
+                  {testimonials.slice(0, 3).map((item) => {
+                    const initials = item.name
+                      .split(" ")
+                      .filter(Boolean)
+                      .map((part) => part[0])
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase();
+                    return (
+                      <article
+                        key={item.id}
+                        className="relative overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-[0_14px_35px_rgba(15,23,42,0.08)]"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-lg font-semibold text-blue-600">
+                            "
+                          </span>
+                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                            Rating {item.rating}/5
+                          </span>
+                        </div>
+                        <p className="mt-4 line-clamp-4 text-[0.98rem] leading-7 text-slate-700">"{item.message}"</p>
+                        <div className="mt-5 flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-emerald-400 text-sm font-semibold text-white">
+                            {initials || "CU"}
+                          </div>
+                          <p className="text-sm font-semibold text-slate-900">{item.name}</p>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="relative mt-8 flex flex-wrap justify-center gap-3">
+              <Button asChild variant="secondary" className="rounded-full px-6">
                 <Link href="/testimonials#add-form">Add Your Testimonial</Link>
               </Button>
-              <Button asChild className="rounded-xl bg-blue-700 hover:bg-blue-800">
+              <Button asChild className="rounded-full bg-blue-700 px-6 hover:bg-blue-800">
                 <Link href="/testimonials">Show More Reviews</Link>
               </Button>
             </div>
@@ -328,26 +381,34 @@ export default async function HomePage() {
         </section>
       </div>
 
-      <section className="mt-16 border-y border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)] py-14">
-        <div className="w-full px-3 md:px-4 lg:px-5">
-          <h2 className="text-center text-3xl font-semibold tracking-tight text-slate-900 md:text-5xl">Why Choose Us?</h2>
+      <section className="relative mt-16 border-y border-slate-200 bg-[linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)] py-14">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.08),transparent_50%)]" />
+        <div className="store-shell relative">
+          <div className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-blue-600">Why Royal Optics</p>
+            <h2 className="mt-3 text-[2.1rem] font-semibold leading-tight tracking-[-0.03em] text-slate-900 md:text-[2.6rem]">Why Choose Us?</h2>
+            <p className="mx-auto mt-3 max-w-2xl text-[0.98rem] leading-7 text-slate-600">
+              We pair premium materials with precise fittings and clear guidance, so every pair feels like it was made for you.
+            </p>
+          </div>
+
           <div className="mt-9 grid gap-4 md:grid-cols-4 md:gap-5">
             {whyItems.map((item, index) => (
               <article
                 key={`${item.title}-${index}`}
-                className="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
+                className="group relative overflow-hidden rounded-[1.7rem] border border-slate-200 bg-white/90 p-6 text-center shadow-[0_16px_40px_rgba(15,23,42,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_55px_rgba(15,23,42,0.12)]"
               >
-                <div className="mx-auto mb-3 inline-flex h-11 w-11 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600 transition duration-300 group-hover:bg-blue-600 group-hover:text-white">
                   {String(item.iconName).toLowerCase().includes("glass") ? <Glasses size={23} /> : null}
                   {String(item.iconName).toLowerCase().includes("eye") ? <Eye size={23} /> : null}
                   {String(item.iconName).toLowerCase().includes("service") ? <HandHeart size={23} /> : null}
                   {String(item.iconName).toLowerCase().includes("tag") ? <Tag size={23} /> : null}
-                  {!["glass", "eye", "service", "tag"].some((key) => String(item.iconName).toLowerCase().includes(key)) ? (
+                  {!['glass', 'eye', 'service', 'tag'].some((key) => String(item.iconName).toLowerCase().includes(key)) ? (
                     <Glasses size={23} />
                   ) : null}
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900 md:text-2xl">{item.title}</h3>
-                <p className="mx-auto mt-2 max-w-[250px] text-sm leading-6 text-slate-600">{item.description}</p>
+                <h3 className="text-[1.15rem] font-semibold tracking-[-0.02em] text-slate-900 md:text-[1.25rem]">{item.title}</h3>
+                <p className="mx-auto mt-3 max-w-[250px] text-[0.95rem] leading-6 text-slate-600">{item.description}</p>
               </article>
             ))}
           </div>

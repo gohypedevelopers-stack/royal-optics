@@ -72,8 +72,8 @@ export default function ProductImageGallery({ images, name, mainImage }: { image
 
   return (
     <>
-      <div className="space-y-4">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-100 via-white to-slate-200 p-3 shadow-sm sm:p-4">
+      <div className="space-y-4 text-[0.98rem] text-slate-700">
+        <div className="store-card relative overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 p-3 sm:p-4">
           <button
             type="button"
             onClick={() => setFullscreenOpen(true)}
@@ -84,7 +84,7 @@ export default function ProductImageGallery({ images, name, mainImage }: { image
               setZoomOrigin({ x: 50, y: 50 });
             }}
             aria-label="Open image in fullscreen"
-            className="group relative block w-full overflow-hidden rounded-xl border border-slate-200 bg-white text-left"
+            className="group relative block w-full overflow-hidden rounded-2xl border border-slate-200 bg-white text-left"
           >
             <div className="relative aspect-[4/3] overflow-hidden">
               <SafeImage

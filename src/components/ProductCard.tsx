@@ -53,7 +53,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <article className="group overflow-hidden rounded-md border border-slate-200 bg-white card-shadow">
+    <article className="store-card store-card-hover group overflow-hidden text-[0.98rem] text-slate-700">
       <Link href={`/products/${product.slug}`} className="block">
         <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
           <SafeImage
@@ -65,22 +65,22 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       </Link>
 
-      <div className="space-y-3 p-3">
+      <div className="space-y-3 p-4">
         <div>
-          <Link href={`/products/${product.slug}`} className="line-clamp-1 text-base font-semibold text-slate-900 hover:underline">
+          <Link href={`/products/${product.slug}`} className="store-card-title line-clamp-1 hover:underline">
             {product.name}
           </Link>
-          <p className="mt-0.5 text-xs uppercase tracking-wide text-slate-500">{product.customizationType.replace("_", " ")}</p>
-          <p className="mt-1 text-xs text-slate-600">Rating {Number(product.rating).toFixed(1)} / 5</p>
+          <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">{product.customizationType.replace("_", " ")}</p>
+          <p className="mt-1 text-xs text-slate-500">Rating {Number(product.rating).toFixed(1)} / 5</p>
         </div>
 
-        <div className="text-lg font-bold text-slate-900">{formatINR(Number(product.price))}</div>
+        <div className="text-[1.2rem] font-semibold text-slate-900">{formatINR(Number(product.price))}</div>
 
         <div className="flex gap-2">
           <button
             type="button"
             onClick={quickAddToCart}
-            className="flex-1 rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+            className="ro-btn-primary flex-1"
           >
             <span className="inline-flex items-center gap-2">
               <ShoppingCart size={16} /> Add
@@ -89,7 +89,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             type="button"
             onClick={addToWishlist}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+            className="ro-btn-secondary px-3"
             aria-label="Add to wishlist"
           >
             <Heart size={16} />

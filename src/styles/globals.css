@@ -37,9 +37,9 @@
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-size: 14px;
-  line-height: 1.5;
-  font-family: "Segoe UI", "Trebuchet MS", Verdana, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  font-family: "Aptos", "Segoe UI", "Trebuchet MS", Verdana, sans-serif;
 }
 
 .site-bg {
@@ -97,6 +97,42 @@ body {
 
 .ro-badge {
   @apply inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700;
+}
+
+.store-shell {
+  @apply w-full px-3 md:px-4 lg:px-5;
+}
+
+.store-section {
+  @apply w-full space-y-3;
+}
+
+.store-section-title {
+  @apply text-center text-[1.9rem] font-semibold leading-tight tracking-[-0.03em] text-slate-900 md:text-[2.85rem];
+}
+
+.store-section-copy {
+  @apply mx-auto max-w-2xl text-center text-[0.98rem] leading-7 text-slate-600;
+}
+
+.store-card {
+  @apply rounded-[1.6rem] border border-slate-200/90 bg-white shadow-[0_16px_45px_rgba(15,23,42,0.08)] transition duration-300;
+}
+
+.store-card-hover {
+  @apply hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(15,23,42,0.12)];
+}
+
+.store-card-title {
+  @apply text-[1.18rem] font-semibold leading-tight tracking-[-0.02em] text-slate-900 md:text-[1.32rem];
+}
+
+.store-card-copy {
+  @apply text-[0.96rem] leading-6 text-slate-600;
+}
+
+.store-pill-icon {
+  @apply inline-flex items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700;
 }
 
 @keyframes hero-fade-up {

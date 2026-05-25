@@ -183,16 +183,16 @@ export default function LensPriceEditor({ initialItems }: { initialItems: LensPr
       </div>
 
       {grouped.length === 0 ? (
-        <div className="rounded-md border border-slate-200 px-4 py-6 text-sm text-slate-500">
+        <div className="rounded-md border border-slate-200 dark:border-slate-800 px-4 py-6 text-sm text-slate-500 dark:text-slate-400">
           No lens pricing rows found for selected filters.
         </div>
       ) : (
         <div className="space-y-4">
           {grouped.map((scopeBlock) => (
-            <section key={scopeBlock.scope} className="rounded-lg border border-slate-200 p-3">
-              <div className="mb-2 flex items-center justify-between border-b border-slate-200 pb-2">
-                <h3 className="text-base font-semibold text-slate-900">{scopeBlock.label}</h3>
-                <p className="text-xs text-slate-500">{scopeBlock.count} options</p>
+            <section key={scopeBlock.scope} className="rounded-lg border border-slate-200 dark:border-slate-800 p-3">
+              <div className="mb-2 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">{scopeBlock.label}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{scopeBlock.count} options</p>
               </div>
 
               <Accordion type="multiple" className="space-y-2">
@@ -201,17 +201,17 @@ export default function LensPriceEditor({ initialItems }: { initialItems: LensPr
                     <AccordionTrigger>
                       <div>
                         <p>{section.section}</p>
-                        <p className="text-xs font-normal text-slate-500">{section.rows.length} options</p>
+                        <p className="text-xs font-normal text-slate-500 dark:text-slate-400">{section.rows.length} options</p>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="space-y-2">
                         {section.rows.map((row) => (
-                          <div key={row.id || row.key} className="grid gap-2 rounded-md border border-slate-200 p-3 md:grid-cols-[1.6fr_1fr_140px_110px]">
+                          <div key={row.id || row.key} className="grid gap-2 rounded-md border border-slate-200 dark:border-slate-800 p-3 md:grid-cols-[1.6fr_1fr_140px_110px]">
                             <div>
                               <p className="text-sm font-semibold">{row.title}</p>
-                              <p className="text-xs text-slate-500">{row.key}</p>
-                              {row.description ? <p className="mt-1 text-xs text-slate-500">{row.description}</p> : null}
+                              <p className="text-xs text-slate-500 dark:text-slate-400">{row.key}</p>
+                              {row.description ? <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{row.description}</p> : null}
                             </div>
                             <Input
                               value={row.value}
@@ -225,10 +225,10 @@ export default function LensPriceEditor({ initialItems }: { initialItems: LensPr
                                 )
                               }
                             />
-                            <div className="flex items-center rounded-md border border-slate-200 px-3 text-sm text-slate-600">
+                            <div className="flex items-center rounded-md border border-slate-200 dark:border-slate-800 px-3 text-sm text-slate-600 dark:text-slate-300">
                               {row.valueType === "PRICE" ? "Rs." : "x"} {Number(row.value).toFixed(2)}
                             </div>
-                            <label className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-sm">
+                            <label className="flex items-center justify-between rounded-md border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm">
                               Active
                               <Switch
                                 checked={row.isActive}

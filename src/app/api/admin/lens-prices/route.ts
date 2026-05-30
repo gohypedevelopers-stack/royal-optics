@@ -45,9 +45,15 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const rows = Array.isArray(body?.items) ? body.items : [];
     const parsedRows = rows.map((row) => lensPriceSchema.parse(row));
+    const keysToKeep = parsedRows.map((row) => row.key);
 
-    await prisma.$transaction(
-      parsedRows.map((row) =>
+    await prisma.$transaction([
+      prisma.lensPrice.deleteMany({
+        where: {
+          key: { notIn: keysToKeep },
+        },
+      }),
+      ...parsedRows.map((row) =>
         prisma.lensPrice.upsert({
           where: { key: row.key },
           update: {
@@ -73,10 +79,10 @@ export async function PATCH(request: Request) {
           },
         }),
       ),
-    );
+    ]);
 
     return NextResponse.json({ success: true, count: parsedRows.length });
   } catch (error: any) {
-    return NextResponse.json({ error: error?.issues?.[0]?.message || "Failed to update lens prices" }, { status: 400 });
+    return NextResponse.json({ error: error?.issues?.[0]?.message || error?.message || "Failed to update lens prices" }, { status: 400 });
   }
 }

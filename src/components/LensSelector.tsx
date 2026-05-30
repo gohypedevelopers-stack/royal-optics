@@ -114,17 +114,28 @@ function groupLensOptions(options: LensOption[]) {
   return groups;
 }
 
-function priceForMode(mode: string, lensOptionKey: string, productPrice: number, lensPrices: Record<string, number>) {
+function priceForMode(
+  customizationType: string,
+  mode: string,
+  lensOptionKey: string,
+  productPrice: number,
+  lensPrices: Record<string, number>
+) {
   const lensPrice = lensOptionKey ? lensPrices[lensOptionKey] || 0 : 0;
-  const sunBaseMultiplier = lensPrices.sunglasses_base_multiplier || 1;
-  const nonPower1 = lensPrices.nonpower_multiplier_ss1 || 1;
-  const nonPower2 = lensPrices.nonpower_multiplier_ss2 || 1;
 
+  if (customizationType === "SUNGLASSES") {
+    const sunBaseMultiplier = lensPrices.sunglasses_base_multiplier || 1;
+    const nonPower1 = lensPrices.nonpower_multiplier_ss1 || 1;
+    const nonPower2 = lensPrices.nonpower_multiplier_ss2 || 1;
+
+    if (mode === "ONLY_FRAME") return productPrice;
+    if (mode === "ONLY_SUNGLASS") return productPrice * nonPower1;
+    if (mode === "NON_RX") return productPrice * nonPower2 + lensPrice;
+    if (mode === "PRESCRIPTION") return productPrice * sunBaseMultiplier + lensPrice;
+  }
+
+  // EYEGLASSES and other types
   if (mode === "ONLY_FRAME") return productPrice;
-  if (mode === "ONLY_SUNGLASS") return productPrice * nonPower1;
-  if (mode === "NON_RX") return productPrice * nonPower2 + lensPrice;
-  if (mode === "PRESCRIPTION") return productPrice * sunBaseMultiplier + lensPrice;
-
   return productPrice + lensPrice;
 }
 
@@ -276,26 +287,16 @@ export default function LensSelector({
             ? EYEGLASS_PRESCRIPTION_OPTIONS[prescriptionType] || []
             : [];
 
-    if (!(mode === "PRESCRIPTION" && prescriptionType === "single_vision")) {
-      return baseOptions;
-    }
-
-    const seen = new Set(baseOptions.map((option) => option.key));
-    const dynamicDrivingOptions: LensOption[] = [];
-    for (const key of Object.keys(lensPrices)) {
-      const normalized = key.toLowerCase();
-      const shouldInclude = normalized.startsWith("drv_day_night_") || normalized.startsWith("drv_night_drive_");
-      if (!shouldInclude || seen.has(key)) continue;
-      dynamicDrivingOptions.push({ key, label: drivingLabelFromKey(key) });
-    }
-
-    return [...baseOptions, ...dynamicDrivingOptions];
-  }, [isEyeglasses, lensPrices, mode, prescriptionType]);
+    // Only return options that exist and are active in the database
+    return baseOptions.filter((option) => option.key in lensPrices);
+  }, [isEyeglasses, mode, prescriptionType, lensPrices]);
 
   const sunglassOptions = useMemo(() => {
     if (!isSunglasses || mode !== "PRESCRIPTION") return [];
-    return SUNGLASS_PRESCRIPTION_OPTIONS[prescriptionType] || [];
-  }, [isSunglasses, mode, prescriptionType]);
+    const baseOptions = SUNGLASS_PRESCRIPTION_OPTIONS[prescriptionType] || [];
+    // Only return options that exist and are active in the database
+    return baseOptions.filter((option) => option.key in lensPrices);
+  }, [isSunglasses, mode, prescriptionType, lensPrices]);
 
   const sunglassTintOption = useMemo(
     () => sunglassOptions.find((option) => option.requiresTint) || null,
@@ -344,8 +345,8 @@ export default function LensSelector({
 
   const unitPrice = useMemo(() => {
     if (isContact) return Number(product.price);
-    return priceForMode(mode, lensOptionKey, Number(product.price), lensPrices);
-  }, [isContact, lensOptionKey, lensPrices, mode, product.price]);
+    return priceForMode(product.customizationType, mode, lensOptionKey, Number(product.price), lensPrices);
+  }, [isContact, lensOptionKey, lensPrices, mode, product.price, product.customizationType]);
 
   const total = unitPrice * computedQuantity;
 
@@ -583,7 +584,7 @@ export default function LensSelector({
               <select
                 value={rightPower}
                 onChange={(event) => setRightPower(event.target.value)}
-                className="w-full rounded-md border border-slate-300 px-2 py-2 text-sm"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
               >
                 <option value="">Fixed Power</option>
                 {resolveSphRange(product.powerRange).map((value) => (
@@ -598,7 +599,7 @@ export default function LensSelector({
               <select
                 value={leftPower}
                 onChange={(event) => setLeftPower(event.target.value)}
-                className="w-full rounded-md border border-slate-300 px-2 py-2 text-sm"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
               >
                 <option value="">Fixed Power</option>
                 {resolveSphRange(product.powerRange).map((value) => (
@@ -739,7 +740,7 @@ export default function LensSelector({
                 <div>
                   <label className="mb-1 block text-xs text-slate-500">SPH</label>
                   <select
-                    className="w-full rounded-md border px-2 py-2 text-sm"
+                    className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                     value={prescription.right.sph}
                     onChange={(event) =>
                       setPrescription((prev) => ({ ...prev, right: { ...prev.right, sph: event.target.value } }))
@@ -755,7 +756,7 @@ export default function LensSelector({
                 <div>
                   <label className="mb-1 block text-xs text-slate-500">CYL</label>
                   <select
-                    className="w-full rounded-md border px-2 py-2 text-sm"
+                    className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                     value={prescription.right.cyl}
                     onChange={(event) =>
                       setPrescription((prev) => ({ ...prev, right: { ...prev.right, cyl: event.target.value } }))
@@ -771,7 +772,7 @@ export default function LensSelector({
                 <div>
                   <label className="mb-1 block text-xs text-slate-500">Axis</label>
                   <select
-                    className="w-full rounded-md border px-2 py-2 text-sm"
+                    className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                     value={prescription.right.axis}
                     onChange={(event) =>
                       setPrescription((prev) => ({ ...prev, right: { ...prev.right, axis: event.target.value } }))
@@ -788,7 +789,7 @@ export default function LensSelector({
                   <div>
                     <label className="mb-1 block text-xs text-slate-500">ADD</label>
                     <select
-                      className="w-full rounded-md border px-2 py-2 text-sm"
+                      className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                       value={prescription.right.add}
                       onChange={(event) =>
                         setPrescription((prev) => ({ ...prev, right: { ...prev.right, add: event.target.value } }))
@@ -812,7 +813,7 @@ export default function LensSelector({
                 <div>
                   <label className="mb-1 block text-xs text-slate-500">SPH</label>
                   <select
-                    className="w-full rounded-md border px-2 py-2 text-sm"
+                    className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                     value={prescription.left.sph}
                     onChange={(event) =>
                       setPrescription((prev) => ({ ...prev, left: { ...prev.left, sph: event.target.value } }))
@@ -828,7 +829,7 @@ export default function LensSelector({
                 <div>
                   <label className="mb-1 block text-xs text-slate-500">CYL</label>
                   <select
-                    className="w-full rounded-md border px-2 py-2 text-sm"
+                    className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                     value={prescription.left.cyl}
                     onChange={(event) =>
                       setPrescription((prev) => ({ ...prev, left: { ...prev.left, cyl: event.target.value } }))
@@ -844,7 +845,7 @@ export default function LensSelector({
                 <div>
                   <label className="mb-1 block text-xs text-slate-500">Axis</label>
                   <select
-                    className="w-full rounded-md border px-2 py-2 text-sm"
+                    className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                     value={prescription.left.axis}
                     onChange={(event) =>
                       setPrescription((prev) => ({ ...prev, left: { ...prev.left, axis: event.target.value } }))
@@ -861,7 +862,7 @@ export default function LensSelector({
                   <div>
                     <label className="mb-1 block text-xs text-slate-500">ADD</label>
                     <select
-                      className="w-full rounded-md border px-2 py-2 text-sm"
+                      className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                       value={prescription.left.add}
                       onChange={(event) =>
                         setPrescription((prev) => ({ ...prev, left: { ...prev.left, add: event.target.value } }))
@@ -916,7 +917,7 @@ export default function LensSelector({
               <div className="rounded-md border border-slate-200 p-3">
                 <div className="flex items-start justify-between">
                   <p className="font-semibold text-slate-800">{sunglassTintOption.label}</p>
-                  <span className="font-semibold text-slate-800">
+                  <span className="font-bold text-slate-900">
                     {formatINR(lensPrices[sunglassTintOption.key] || 0)}
                   </span>
                 </div>
@@ -970,7 +971,7 @@ export default function LensSelector({
                       />
                       {sunglassesQuickLabel(option.label, index, "polarized")}
                     </span>
-                    <strong>{formatINR(lensPrices[option.key] || 0)}</strong>
+                    <strong className="text-slate-900 font-bold">{formatINR(lensPrices[option.key] || 0)}</strong>
                   </button>
                 ))}
               </div>
@@ -999,7 +1000,7 @@ export default function LensSelector({
                       />
                       {sunglassesQuickLabel(option.label, index, "daynight")}
                     </span>
-                    <strong>{formatINR(lensPrices[option.key] || 0)}</strong>
+                    <strong className="text-slate-900 font-bold">{formatINR(lensPrices[option.key] || 0)}</strong>
                   </button>
                 ))}
                 {sunglassLensSelection === "daynight" && (
@@ -1070,7 +1071,7 @@ function renderEyewearDrawer() {
             <div>
               <label className="mb-1 block text-xs text-slate-500">SPH</label>
               <select
-                className="w-full rounded-md border px-2 py-2 text-sm"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                 value={values.sph}
                 onChange={(event) =>
                   setPrescription((prev) => ({ ...prev, [side]: { ...prev[side], sph: event.target.value } }))
@@ -1086,7 +1087,7 @@ function renderEyewearDrawer() {
             <div>
               <label className="mb-1 block text-xs text-slate-500">CYL</label>
               <select
-                className="w-full rounded-md border px-2 py-2 text-sm"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                 value={values.cyl}
                 onChange={(event) =>
                   setPrescription((prev) => ({ ...prev, [side]: { ...prev[side], cyl: event.target.value } }))
@@ -1102,7 +1103,7 @@ function renderEyewearDrawer() {
             <div>
               <label className="mb-1 block text-xs text-slate-500">Axis</label>
               <select
-                className="w-full rounded-md border px-2 py-2 text-sm"
+                className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                 value={values.axis}
                 onChange={(event) =>
                   setPrescription((prev) => ({ ...prev, [side]: { ...prev[side], axis: event.target.value } }))
@@ -1119,7 +1120,7 @@ function renderEyewearDrawer() {
               <div>
                 <label className="mb-1 block text-xs text-slate-500">ADD</label>
                 <select
-                  className="w-full rounded-md border px-2 py-2 text-sm"
+                  className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                   value={values.add}
                   onChange={(event) =>
                     setPrescription((prev) => ({ ...prev, [side]: { ...prev[side], add: event.target.value } }))
@@ -1314,7 +1315,7 @@ function renderEyewearDrawer() {
                       <select
                         value={readerRight}
                         onChange={(event) => setReaderRight(event.target.value)}
-                        className="w-full rounded-md border px-2 py-2 text-sm"
+                        className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                       >
                         {NON_RX_SS_RANGE.map((value) => (
                           <option key={value} value={value}>
@@ -1328,7 +1329,7 @@ function renderEyewearDrawer() {
                       <select
                         value={readerLeft}
                         onChange={(event) => setReaderLeft(event.target.value)}
-                        className="w-full rounded-md border px-2 py-2 text-sm"
+                        className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
                       >
                         {NON_RX_SS_RANGE.map((value) => (
                           <option key={value} value={value}>
@@ -1410,7 +1411,7 @@ function renderEyewearDrawer() {
                                   <p className="font-semibold text-slate-800">{option.label}</p>
                                   <p className="mt-1 text-xs text-slate-500">Protecting approx. 50% from UV rays.</p>
                                 </div>
-                                <strong>{formatINR(price)}</strong>
+                                <strong className="text-slate-900 font-bold">{formatINR(price)}</strong>
                               </button>
 
                               <div className="mt-2">
@@ -1451,7 +1452,7 @@ function renderEyewearDrawer() {
                               <span className={`h-4 w-4 rounded-full border ${active ? "border-emerald-600 bg-emerald-600" : "border-slate-400 bg-white"}`} />
                               {displayLabel}
                             </span>
-                            <strong>{formatINR(price)}</strong>
+                            <strong className="text-slate-900 font-bold">{formatINR(price)}</strong>
                           </button>
                         );
                       })}

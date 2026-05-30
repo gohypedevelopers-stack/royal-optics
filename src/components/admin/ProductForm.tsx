@@ -173,7 +173,18 @@ export default function ProductForm({
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Power Range</label>
-          <Input {...form.register("powerRange")} placeholder="GENERAL_EYEWEAR / TYPE_1" />
+          <select className="ro-input h-10" {...form.register("powerRange")}>
+            <option value="">None (No custom range)</option>
+            <option value="GENERAL_EYEWEAR">GENERAL_EYEWEAR (General Eyewear)</option>
+            <option value="TYPE_1">TYPE_1 (-0.50 to -9.00)</option>
+            <option value="TYPE_2">TYPE_2 (-0.50 to -10.00)</option>
+            <option value="TYPE_3">TYPE_3 (-0.50 to -12.00)</option>
+            <option value="TYPE_4">TYPE_4 (-12.50 to -20.00)</option>
+            <option value="TYPE_5">TYPE_5 (+0.50 to +8.00)</option>
+            <option value="TYPE_6">TYPE_6 (+8.50 to +15.00)</option>
+            <option value="TYPE_7">TYPE_7 (+0.50 to +2.00)</option>
+            <option value="TYPE_8">TYPE_8 (+2.50 to +5.00)</option>
+          </select>
         </div>
         <div className="space-y-2 md:col-span-2">
           <label className="text-sm font-medium">Available Colors (comma separated text)</label>

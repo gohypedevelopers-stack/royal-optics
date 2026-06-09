@@ -262,10 +262,6 @@ export default async function HomePage() {
                           className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                         />
                         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white/90 via-white/40 to-transparent" />
-                        <div className="absolute left-4 top-4 flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-white shadow-sm">
-                          <Flame size={11} className="fill-white animate-pulse" />
-                          <span>Trending</span>
-                        </div>
                       </div>
 
                       {/* Content block */}

@@ -1038,8 +1038,8 @@ async function main() {
   await prisma.heroBanner.createMany({
     data: [
       {
-        title: "Royal Opticians Since 1980",
-        subtitle: "Trusted craftsmanship now online as Royal Optics",
+        title: "Royal Opticians Since 1932",
+        subtitle: "Trusted craftsmanship now online as Royal Optics in 2024",
         imageUrl: "/ban1.jpg",
         ctaLabel: "Shop Eyeglasses",
         ctaHref: "/products?category=eyeglasses",

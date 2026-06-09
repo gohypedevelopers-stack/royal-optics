@@ -1,6 +1,6 @@
 export const brand = {
   name: "Royal Optics",
-  legacyText: "Royal Opticians since 1980, online Royal Optics in 2025",
+  legacyText: "Royal Opticians since 1932, online Royal Optics in 2024",
   phone: "+91 9911522006",
   email: "royalopticians1169@gmail.com",
   address:

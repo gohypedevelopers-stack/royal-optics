@@ -17,8 +17,7 @@ type Banner = {
 
 export default function HeroSlider({ banners }: { banners: Banner[] }) {
   const normalizeLegacyYear = (value: string | null) => {
-    if (!value) return value;
-    return value.replace(/1932/g, "1980");
+    return value;
   };
 
   const fallbackBanners: Banner[] = [

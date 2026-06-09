@@ -5,6 +5,7 @@ import { CheckCircle2, Heart, ShieldCheck, ShoppingCart, Star, Truck } from "luc
 import { toast } from "sonner";
 import LensSelector from "@/components/LensSelector";
 import { formatINR } from "@/lib/format";
+import { useRouter } from "next/navigation";
 
 type ProductDetailsProps = {
   product: {
@@ -53,6 +54,7 @@ function parseDescriptionTable(description: string) {
 }
 
 export default function ProductDetails({ product, lensPrices, supportPhone }: ProductDetailsProps) {
+  const router = useRouter();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState(product.colors[0] || "");
 
@@ -96,52 +98,42 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
     }
 
     toast.success("Added to Wishlist");
+    router.refresh();
   }
 
   return (
     <div className="xl:sticky xl:top-24">
       <div className="store-card space-y-5 p-4 text-[0.98rem] text-slate-700 sm:p-6">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">
+          <span className="rounded-full bg-blue-500/10 px-3.5 py-1.5 text-[0.7rem] font-bold uppercase tracking-wider text-blue-600">
             {categoryLabel}
           </span>
-          <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${stockMeta.className}`}>
+          <span className={`rounded-full border px-3.5 py-1.5 text-[0.7rem] font-bold uppercase tracking-wider ${stockMeta.className}`}>
             {stockMeta.label}
           </span>
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">{product.name}</h1>
-          <p className="text-4xl font-bold leading-none text-slate-900 sm:text-5xl">{formatINR(Number(product.price))}</p>
+          <h1 className="text-3xl font-extrabold leading-tight text-slate-900 tracking-tight sm:text-4xl">{product.name}</h1>
+          <p className="text-3xl font-extrabold leading-none text-slate-900 tracking-tight">{formatINR(Number(product.price))}</p>
         </div>
 
-        <div className="flex items-center gap-2 text-sm sm:text-base">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-0.5">
             {[0, 1, 2, 3, 4].map((index) => (
               <Star
                 key={index}
-                size={18}
-                className={index < fullStars ? "fill-amber-400 text-amber-400" : "text-slate-300"}
+                size={16}
+                className={index < fullStars ? "fill-amber-400 text-amber-400" : "text-slate-200"}
               />
             ))}
           </div>
-          <span className="font-semibold text-slate-700">{Number(product.rating).toFixed(1)}</span>
-          <span className="text-slate-500">/ 5.0 rating</span>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Category</p>
-            <p className="mt-1 text-sm font-semibold text-slate-800">{categoryLabel}</p>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Price</p>
-            <p className="mt-1 text-sm font-semibold text-slate-800">{formatINR(Number(product.price))}</p>
-          </div>
+          <span className="font-bold text-slate-800">{Number(product.rating).toFixed(1)}</span>
+          <span className="text-slate-400">/ 5.0 rating</span>
         </div>
 
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-600">Select Color</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Select Color</p>
           <div className="mt-2 flex flex-wrap gap-2.5">
             {colorOptions.map((color) => {
               const active = selectedColor === color;
@@ -152,8 +144,8 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
                   onClick={() => setSelectedColor(color)}
                   aria-label={color}
                   title={color}
-                  className={`h-9 w-9 rounded-full border-2 transition ${
-                    active ? "scale-105 border-slate-900 ring-2 ring-slate-200" : "border-slate-300 hover:border-slate-500"
+                  className={`h-9 w-9 rounded-full border-2 transition-all duration-300 ${
+                    active ? "scale-105 border-slate-900 ring-2 ring-slate-200" : "border-slate-200 hover:border-slate-400"
                   }`}
                   style={{ backgroundColor: colorValue(color) }}
                 />
@@ -162,15 +154,15 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-600">Description</p>
+        <div className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Description</p>
           {descriptionTable.length ? (
-            <div className="mt-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
+            <div className="mt-3 overflow-hidden rounded-xl border border-slate-200/60 bg-white">
               <table className="w-full text-sm">
                 <tbody>
                   {descriptionTable.map((item, index) => (
-                    <tr key={`${item.key}-${index}`} className="border-b last:border-b-0">
-                      <th className="w-1/2 bg-slate-50 px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                    <tr key={`${item.key}-${index}`} className="border-b last:border-b-0 border-slate-100">
+                      <th className="w-1/2 bg-slate-50/60 px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                         {item.key}
                       </th>
                       <td className="px-3 py-2 text-sm font-medium text-slate-700">{item.value}</td>
@@ -180,41 +172,42 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
               </table>
             </div>
           ) : (
-            <p className="mt-2 text-base leading-7 text-slate-700">{product.description}</p>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">{product.description}</p>
           )}
         </div>
 
-        <div className="grid gap-2 text-xs font-semibold text-slate-600 sm:grid-cols-3">
-          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
-            <Truck className="h-4 w-4 text-blue-600" />
-            Fast shipping
+        {/* Trust elements */}
+        <div className="grid gap-3 text-xs font-bold uppercase tracking-wider text-slate-500 sm:grid-cols-3">
+          <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white p-3 text-center transition-all hover:bg-slate-50 shadow-sm">
+            <Truck className="h-5 w-5 text-blue-600" />
+            <span>Fast Shipping</span>
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
-            Quality checked
+          <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white p-3 text-center transition-all hover:bg-slate-50 shadow-sm">
+            <ShieldCheck className="h-5 w-5 text-emerald-600" />
+            <span>Quality Check</span>
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
-            <CheckCircle2 className="h-4 w-4 text-amber-600" />
-            Easy returns
+          <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-slate-100 bg-white p-3 text-center transition-all hover:bg-slate-50 shadow-sm">
+            <CheckCircle2 className="h-5 w-5 text-amber-600" />
+            <span>Easy Returns</span>
           </div>
         </div>
 
-        <div className="space-y-3">
-          <button
-            type="button"
-            onClick={addWishlist}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-600 px-5 text-base font-semibold text-white transition hover:bg-blue-700"
-          >
-            <Heart size={19} className="fill-white" /> Add to Wishlist
-          </button>
-
+        <div className="space-y-3 pt-2">
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
             disabled={isOutOfStock}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 text-base font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-slate-950 px-5 text-sm font-bold text-white shadow-sm transition-all duration-300 hover:bg-blue-600 hover:shadow-[0_8px_20px_-4px_rgba(37,99,235,0.3)] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 active:scale-[0.98]"
           >
-            <ShoppingCart size={19} /> {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+            <ShoppingCart size={17} /> {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+          </button>
+
+          <button
+            type="button"
+            onClick={addWishlist}
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition-all duration-300 hover:bg-slate-50 hover:text-slate-950 hover:border-slate-300 active:scale-[0.98]"
+          >
+            <Heart size={17} className="text-slate-500" /> Add to Wishlist
           </button>
         </div>
       </div>

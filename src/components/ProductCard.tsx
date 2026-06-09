@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Heart, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { formatINR } from "@/lib/format";
+import { useRouter } from "next/navigation";
 
 type ProductCardProps = {
   product: {
@@ -22,6 +23,7 @@ type ProductCardProps = {
 
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const router = useRouter();
   async function addToWishlist() {
     const response = await fetch("/api/wishlist", {
       method: "POST",
@@ -35,6 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
 
     toast.success("Added to Wishlist");
+    router.refresh();
   }
 
   async function quickAddToCart() {
@@ -50,6 +53,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
 
     toast.success("Added to cart");
+    router.refresh();
   }
 
   return (

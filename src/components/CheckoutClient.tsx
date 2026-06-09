@@ -159,6 +159,7 @@ export default function CheckoutClient({ addresses, cartTotal, shippingFee, cart
 
       if (paymentMethod === "COD") {
         toast.success("Order placed successfully");
+        router.refresh();
         router.push(`/order-confirmation/${order.id}`);
         return;
       }
@@ -201,6 +202,7 @@ export default function CheckoutClient({ addresses, cartTotal, shippingFee, cart
           }
 
           toast.success("Payment successful");
+          router.refresh();
           router.push(`/order-confirmation/${verifyData.orderId}`);
         },
         prefill: {

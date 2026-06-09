@@ -243,37 +243,46 @@ export default async function HomePage() {
           {trendingProducts.length === 0 ? (
             <p className="mt-6 text-center text-[0.96rem] text-slate-500">No trending products available right now.</p>
           ) : (
-            <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {trendingProducts.map((product) => (
                   <Link
                     key={product.id}
                     href={`/products/${product.slug}`}
-                    className="group overflow-hidden rounded-[1.5rem] border border-slate-200/90 bg-white shadow-[0_16px_40px_rgba(15,23,42,0.07)] transition duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-[0_22px_50px_rgba(15,23,42,0.12)]"
+                    className="group flex flex-col justify-between overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1.5 hover:border-slate-300 hover:shadow-[0_20px_45px_rgba(15,23,42,0.09)]"
                   >
-                    <div className="relative aspect-[16/9] w-full overflow-hidden bg-[radial-gradient(circle_at_top,#f8fafc,#e2e8f0)]">
-                      <SafeImage
-                        src={product.mainImage || product.images[0]?.url || "/frame-square.png"}
-                        alt={product.images[0]?.alt || product.name}
-                        fill
-                        quality={78}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
-                        className="object-cover transition duration-500 group-hover:scale-[1.05]"
-                      />
-                      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white via-white/85 to-transparent" />
-                      <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-slate-600 shadow-sm">
-                        Trending
+                    <div>
+                      {/* Image container */}
+                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[radial-gradient(circle_at_top,#f8fafc,#f1f5f9)]">
+                        <SafeImage
+                          src={product.mainImage || product.images[0]?.url || "/frame-square.png"}
+                          alt={product.images[0]?.alt || product.name}
+                          fill
+                          quality={80}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white/90 via-white/40 to-transparent" />
+                        <div className="absolute left-4 top-4 flex items-center gap-1 rounded-full bg-amber-500 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-white shadow-sm">
+                          <Flame size={11} className="fill-white animate-pulse" />
+                          <span>Trending</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="space-y-3 p-4">
-                      <div className="space-y-2">
-                        <p className="line-clamp-2 min-h-[2.6rem] text-[1rem] font-semibold leading-6 tracking-[-0.02em] text-slate-900 md:text-[1.04rem]">
+
+                      {/* Content block */}
+                      <div className="p-5">
+                        <p className="line-clamp-2 text-[0.98rem] font-bold leading-snug tracking-tight text-slate-800 transition-colors duration-300 group-hover:text-blue-600">
                           {product.name}
                         </p>
                       </div>
-                      <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
-                        <p className="text-[1.05rem] font-semibold text-emerald-700">{formatINR(Number(product.price))}</p>
-                        <span className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition group-hover:bg-sky-700">
-                          View Product
+                    </div>
+
+                    {/* Action row */}
+                    <div className="px-5 pb-5">
+                      <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-4">
+                        <span className="text-[1.1rem] font-bold text-slate-900">{formatINR(Number(product.price))}</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-slate-950 px-3.5 py-2 text-[0.72rem] font-semibold text-white transition-all duration-300 group-hover:bg-blue-600 group-hover:shadow-[0_4px_12px_rgba(37,99,235,0.25)]">
+                          View Details
+                          <span className="transition-transform duration-300 group-hover:translate-x-0.5">→</span>
                         </span>
                       </div>
                     </div>

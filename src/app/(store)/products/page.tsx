@@ -59,9 +59,15 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   let categoryIds: string[] | undefined;
   if (categorySlug) {
     const category = categories.find((item) => item.slug === categorySlug);
-    categoryIds = category
-      ? descendantIds(category.id, categories)
-      : [];
+    if (category) {
+      if (category.slug === "eyewear") {
+        categoryIds = [category.id];
+      } else {
+        categoryIds = descendantIds(category.id, categories);
+      }
+    } else {
+      categoryIds = [];
+    }
   }
 
   const where: Prisma.ProductWhereInput = {
@@ -95,48 +101,83 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         <ShoppingCart className="text-slate-600" size={34} /> Browse Our Products
       </h1>
 
-      <div className="mx-auto mt-6 max-w-[1600px]">
-        <div className="flex flex-wrap items-center gap-x-7 gap-y-4">
+      <div className="mx-auto mt-8 max-w-[1600px] border-b border-slate-100 pb-5">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/products"
-            className={`rounded border px-3 py-1.5 text-sm ${
-              !categorySlug ? "border-slate-300 bg-slate-50 text-slate-900" : "border-transparent bg-transparent text-blue-600 hover:text-blue-700"
+            className={`rounded-full px-5 py-2.5 text-[0.82rem] font-bold uppercase tracking-wider transition-all duration-300 ${
+              !categorySlug
+                ? "bg-slate-900 text-white shadow-[0_4px_12px_rgba(15,23,42,0.12)] border border-transparent"
+                : "border border-slate-200/90 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 shadow-sm"
             }`}
           >
             All Products
           </Link>
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/products?category=${category.slug}`}
-              className={`rounded border px-3 py-1.5 text-sm ${
-                categorySlug === category.slug
-                  ? "border-slate-300 bg-slate-50 text-slate-900"
-                  : "border-transparent bg-transparent text-blue-600 hover:text-blue-700"
-              }`}
-            >
-              {category.name}
-            </Link>
-          ))}
+          {(() => {
+            const allowedFilterNames = ["Eyewear", "Sunglasses", "Eyeglasses", "Contact Lenses", "Accessories"];
+            const filterCategories = allowedFilterNames
+              .map((name) => categories.find((cat) => cat.name.trim().toLowerCase() === name.toLowerCase()))
+              .filter((cat): cat is Exclude<typeof cat, undefined> => cat !== undefined);
+
+            return filterCategories.map((category) => (
+              <Link
+                key={category.id}
+                href={`/products?category=${category.slug}`}
+                className={`rounded-full px-5 py-2.5 text-[0.82rem] font-bold uppercase tracking-wider transition-all duration-300 ${
+                  categorySlug === category.slug
+                    ? "bg-slate-900 text-white shadow-[0_4px_12px_rgba(15,23,42,0.12)] border border-transparent"
+                    : "border border-slate-200/90 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 shadow-sm"
+                }`}
+              >
+                {category.name}
+              </Link>
+            ));
+          })()}
         </div>
       </div>
 
       {products.length === 0 ? (
         <p className="mt-8 text-center text-sm text-slate-500">No products found.</p>
       ) : (
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {products.map((product) => (
-            <Link key={product.id} href={`/products/${product.slug}`} className="block rounded-md border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="relative h-[170px] overflow-hidden rounded bg-slate-100">
-                <SafeImage
-                  src={product.mainImage || product.images[0]?.url || "/frame-square.png"}
-                  alt={product.images[0]?.alt || product.name}
-                  fill
-                  className="object-cover"
-                />
+            <Link
+              key={product.id}
+              href={`/products/${product.slug}`}
+              className="group flex flex-col justify-between overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.04)] transition-all duration-300 hover:-translate-y-1.5 hover:border-slate-300 hover:shadow-[0_20px_45px_rgba(15,23,42,0.09)]"
+            >
+              <div>
+                {/* Image container */}
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-[radial-gradient(circle_at_top,#f8fafc,#f1f5f9)]">
+                  <SafeImage
+                    src={product.mainImage || product.images[0]?.url || "/frame-square.png"}
+                    alt={product.images[0]?.alt || product.name}
+                    fill
+                    quality={80}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 25vw, 25vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white/90 via-white/40 to-transparent" />
+                </div>
+
+                {/* Content block */}
+                <div className="p-5">
+                  <p className="line-clamp-2 text-[0.98rem] font-bold leading-snug tracking-tight text-slate-800 transition-colors duration-300 group-hover:text-blue-600">
+                    {product.name}
+                  </p>
+                </div>
               </div>
-              <p className="mt-3 text-2xl font-semibold text-slate-800">{product.name}</p>
-              <p className="mt-1 text-2xl font-semibold text-emerald-700">{formatINR(Number(product.price))}</p>
+
+              {/* Action row */}
+              <div className="px-5 pb-5">
+                <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-4">
+                  <span className="text-[1.1rem] font-bold text-slate-900">{formatINR(Number(product.price))}</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-950 px-3.5 py-2 text-[0.72rem] font-semibold text-white transition-all duration-300 group-hover:bg-blue-600 group-hover:shadow-[0_4px_12px_rgba(37,99,235,0.25)]">
+                    View Details
+                    <span className="transition-transform duration-300 group-hover:translate-x-0.5">→</span>
+                  </span>
+                </div>
+              </div>
             </Link>
           ))}
         </div>

@@ -73,18 +73,14 @@ export default function ProductImageGallery({ images, name, mainImage }: { image
   return (
     <>
       <div className="space-y-4 text-[0.98rem] text-slate-700">
-        <div className="store-card relative overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 p-3 sm:p-4">
+        <div className="relative overflow-hidden bg-transparent p-0">
           <button
             type="button"
             onClick={() => setFullscreenOpen(true)}
-            onMouseMove={handleMouseMove}
             onMouseEnter={() => setIsZoomed(true)}
-            onMouseLeave={() => {
-              setIsZoomed(false);
-              setZoomOrigin({ x: 50, y: 50 });
-            }}
+            onMouseLeave={() => setIsZoomed(false)}
             aria-label="Open image in fullscreen"
-            className="group relative block w-full overflow-hidden rounded-2xl border border-slate-200 bg-white text-left"
+            className="group relative block w-full overflow-hidden rounded-2xl bg-transparent text-left"
           >
             <div className="relative aspect-[4/3] overflow-hidden">
               <SafeImage
@@ -93,23 +89,12 @@ export default function ProductImageGallery({ images, name, mainImage }: { image
                 fill
                 sizes="(max-width: 1024px) 100vw, 58vw"
                 priority
-                className={`object-contain p-3 transition duration-300 sm:p-5 ${
-                  isZoomed ? "scale-[1.65]" : "scale-100"
+                className={`object-contain p-0 transition-transform duration-500 ease-out ${
+                  isZoomed ? "scale-[1.12]" : "scale-100"
                 }`}
-                style={{ transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%` }}
               />
             </div>
-            <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white/95 px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-sm">
-              <Expand className="h-3.5 w-3.5" />
-              Fullscreen
-            </span>
           </button>
-          <span className="absolute bottom-5 right-5 rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-sm">
-            {active + 1}/{safeImages.length}
-          </span>
-          <span className="absolute bottom-5 left-5 rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-sm">
-            Hover to zoom
-          </span>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-1">
@@ -132,60 +117,84 @@ export default function ProductImageGallery({ images, name, mainImage }: { image
       </div>
 
       {fullscreenOpen && (
-        <div className="fixed inset-0 z-[130] bg-black/92 p-4 sm:p-6" role="dialog" aria-modal="true">
+        <div
+          onClick={() => setFullscreenOpen(false)}
+          className="fixed inset-0 z-[130] flex flex-col justify-between bg-slate-950/96 p-6 md:p-8 backdrop-blur-xl"
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Close button */}
           <button
             type="button"
             onClick={() => setFullscreenOpen(false)}
-            className="absolute right-4 top-4 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-black/40 text-white transition hover:bg-black/70"
+            className="absolute right-6 top-6 z-20 inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 backdrop-blur-md transition-all duration-300 hover:bg-white/15 hover:text-white hover:scale-105 active:scale-95"
             aria-label="Close fullscreen image"
           >
-            <X className="h-5 w-5" />
+            <X className="h-6 w-6" />
           </button>
 
           {hasMultiple && (
             <>
+              {/* Prev button */}
               <button
                 type="button"
-                onClick={previousImage}
-                className="absolute left-3 top-1/2 z-20 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/40 text-white transition hover:bg-black/70 sm:left-6"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  previousImage();
+                }}
+                className="absolute left-6 top-1/2 z-20 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 backdrop-blur-md transition-all duration-300 hover:bg-white/15 hover:text-white hover:scale-105 active:scale-95 sm:left-8"
                 aria-label="Previous image"
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-6 w-6" />
               </button>
+              {/* Next button */}
               <button
                 type="button"
-                onClick={nextImage}
-                className="absolute right-3 top-1/2 z-20 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/40 text-white transition hover:bg-black/70 sm:right-6"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextImage();
+                }}
+                className="absolute right-6 top-1/2 z-20 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/80 backdrop-blur-md transition-all duration-300 hover:bg-white/15 hover:text-white hover:scale-105 active:scale-95 sm:right-8"
                 aria-label="Next image"
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-6 w-6" />
               </button>
             </>
           )}
 
-          <div className="mx-auto flex h-full max-w-7xl flex-col gap-4">
-            <div className="relative flex-1 overflow-hidden rounded-2xl border border-white/20 bg-black/30">
-              <SafeImage
-                src={activeImage?.url || "/frame-square.png"}
-                alt={activeImage?.alt || name}
-                fill
-                sizes="100vw"
-                className="object-contain p-4 sm:p-8"
-              />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="mx-auto flex h-full w-full max-w-5xl flex-col justify-between gap-6 pt-10"
+          >
+            {/* Main Image Frame (No Box Borders) */}
+            <div className="relative flex-1 flex items-center justify-center overflow-hidden">
+              <div className="relative w-full h-full max-h-[68vh]">
+                <SafeImage
+                  src={activeImage?.url || "/frame-square.png"}
+                  alt={activeImage?.alt || name}
+                  fill
+                  sizes="100vw"
+                  className="object-contain p-2"
+                  priority
+                />
+              </div>
             </div>
 
-            <div className="mx-auto flex max-w-full gap-2 overflow-x-auto pb-2">
+            {/* Thumbnail Navigation */}
+            <div className="mx-auto flex max-w-full gap-3 overflow-x-auto pb-2 px-4">
               {safeImages.map((image, index) => (
                 <button
                   key={`${image.id}-fullscreen`}
                   type="button"
                   onClick={() => setActive(index)}
-                  className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border sm:h-20 sm:w-20 ${
-                    index === active ? "border-blue-400 ring-2 ring-blue-300/80" : "border-white/40"
+                  className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-all duration-300 ${
+                    index === active
+                      ? "border-amber-400 scale-105 shadow-lg shadow-amber-400/20"
+                      : "border-white/10 opacity-40 hover:opacity-100 hover:border-white/30"
                   }`}
                   aria-label={`View fullscreen image ${index + 1}`}
                 >
-                  <SafeImage src={image.url} alt={image.alt || name} fill sizes="80px" className="object-contain p-1 bg-white" />
+                  <SafeImage src={image.url} alt={image.alt || name} fill sizes="64px" className="object-contain p-1 bg-slate-900" />
                 </button>
               ))}
             </div>

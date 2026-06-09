@@ -35,6 +35,7 @@ export default async function WishlistPage() {
     product: {
       ...item.product,
       price: Number(item.product.price),
+      rating: Number(item.product.rating) || 0,
     },
   }));
 

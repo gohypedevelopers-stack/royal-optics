@@ -410,14 +410,6 @@ export default function LensSelector({
       }
       if (activeMode === "ONLY_FRAME") return true;
       if (activeMode === "READER") {
-        if (!hasFullPrescription(prescription, true)) {
-          toast.error("Complete all prescription details");
-          return false;
-        }
-        if (!readerRight || !readerLeft) {
-          toast.error("Select reader add power");
-          return false;
-        }
         if (!lensOptionKey) {
           toast.error("Select a lens type");
           return false;
@@ -1154,7 +1146,17 @@ function renderEyewearDrawer() {
         );
       }
 
-      const showAdd = mode === "READER" ? true : needsAdd;
+      if (mode === "READER") {
+        return (
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+            <p>
+              <strong>Reader Power:</strong> {readerRight || "-"}
+            </p>
+          </div>
+        );
+      }
+
+      const showAdd = needsAdd;
       return (
         <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
           <p>
@@ -1196,9 +1198,8 @@ function renderEyewearDrawer() {
                 setReaderRight("");
                 setReaderLeft("");
                 setLensOptionKey("");
-                setEyewearProceeded(false);
-                setPrescription(eyewearDefaultPrescription);
-                setEyewearStep("strengthForm");
+                setEyewearProceeded(true);
+                setEyewearStep("lensType");
               })}
 
               {topOptionButton("Non Prescription", "NON_RX", () => {
@@ -1299,13 +1300,30 @@ function renderEyewearDrawer() {
                 &lt;- Back
               </button>
               <h4 className="text-base font-semibold text-slate-800">
-                {mode === "READER" ? "STEP 2 - Enter Reader Prescription" : "STEP 2 - Select Strength (SS)"}
+                {mode === "READER" ? "STEP 2 - Select Reader Power" : "STEP 2 - Select Strength (SS)"}
               </h4>
               {mode === "READER" ? (
-                <>
-                  {renderPrescriptionFields("right", true)}
-                  {renderPrescriptionFields("left", true)}
-                </>
+                <div className="rounded-md border border-slate-200 p-3">
+                  <p className="mb-2 text-sm font-semibold text-slate-800">Reader Power</p>
+                  <div>
+                    <label className="mb-1 block text-xs text-slate-500">Power (Strength)</label>
+                    <select
+                      value={readerRight}
+                      onChange={(event) => {
+                        setReaderRight(event.target.value);
+                        setReaderLeft(event.target.value);
+                      }}
+                      className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
+                    >
+                      <option value="">Select Power</option>
+                      {BIFOCAL_PROGRESSIVE_ADD_RANGE.map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               ) : (
                 <div className="rounded-md border border-slate-200 p-3">
                   <p className="mb-2 text-sm font-semibold text-slate-800">Zero Power</p>
@@ -1345,12 +1363,7 @@ function renderEyewearDrawer() {
                 type="button"
                 onClick={() => {
                   if (mode === "READER") {
-                    if (!hasFullPrescription(prescription, true)) {
-                      toast.error("Complete all prescription details");
-                      return;
-                    }
-                    setReaderRight(prescription.right.add);
-                    setReaderLeft(prescription.left.add);
+                    setReaderLeft(readerRight);
                   } else {
                     if (!readerRight || !readerLeft) {
                       toast.error("Select strength");
@@ -1371,7 +1384,7 @@ function renderEyewearDrawer() {
             <div className="space-y-3">
               <button
                 type="button"
-                onClick={() => setEyewearStep(mode === "PRESCRIPTION" ? "prescriptionForm" : mode === "READER" ? "strengthForm" : "option")}
+                onClick={() => setEyewearStep(mode === "PRESCRIPTION" ? "prescriptionForm" : "option")}
                 className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200"
               >
                 &lt;- Back

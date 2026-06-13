@@ -31,9 +31,23 @@ export default async function CartPage() {
     : [];
 
   const serialized = items.map((item) => ({
-    ...item,
+    id: item.id,
+    quantity: item.quantity,
+    selectedColor: item.selectedColor,
+    lensDetails: item.lensDetails,
     unitPrice: Number(item.unitPrice),
     lineTotal: Number(item.lineTotal),
+    product: {
+      id: item.product.id,
+      name: item.product.name,
+      slug: item.product.slug,
+      customizationType: item.product.customizationType,
+      mainImage: item.product.mainImage,
+      images: item.product.images.map((image) => ({
+        url: image.url,
+        alt: image.alt,
+      })),
+    },
   }));
 
   return (

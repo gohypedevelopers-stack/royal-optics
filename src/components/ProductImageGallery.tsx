@@ -72,7 +72,7 @@ export default function ProductImageGallery({ images, name, mainImage }: { image
 
   return (
     <>
-      <div className="space-y-4 text-[0.98rem] text-slate-700">
+      <div className="space-y-4 text-[0.98rem] text-slate-700 xl:sticky xl:top-24">
         <div className="relative overflow-hidden bg-transparent p-0">
           <button
             type="button"

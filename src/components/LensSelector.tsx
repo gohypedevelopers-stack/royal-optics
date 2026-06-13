@@ -294,9 +294,8 @@ export default function LensSelector({
   const sunglassOptions = useMemo(() => {
     if (!isSunglasses || mode !== "PRESCRIPTION") return [];
     const baseOptions = SUNGLASS_PRESCRIPTION_OPTIONS[prescriptionType] || [];
-    // Only return options that exist and are active in the database
-    return baseOptions.filter((option) => option.key in lensPrices);
-  }, [isSunglasses, mode, prescriptionType, lensPrices]);
+    return baseOptions;
+  }, [isSunglasses, mode, prescriptionType]);
 
   const sunglassTintOption = useMemo(
     () => sunglassOptions.find((option) => option.requiresTint) || null,
@@ -410,6 +409,10 @@ export default function LensSelector({
       }
       if (activeMode === "ONLY_FRAME") return true;
       if (activeMode === "READER") {
+        if (!readerRight || !readerLeft) {
+          toast.error("Select reader power");
+          return false;
+        }
         if (!lensOptionKey) {
           toast.error("Select a lens type");
           return false;
@@ -1150,7 +1153,10 @@ function renderEyewearDrawer() {
         return (
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
             <p>
-              <strong>Reader Power:</strong> {readerRight || "-"}
+              <strong>Right Reader Power:</strong> {readerRight || "-"}
+            </p>
+            <p className="mt-1">
+              <strong>Left Reader Power:</strong> {readerLeft || "-"}
             </p>
           </div>
         );
@@ -1198,8 +1204,8 @@ function renderEyewearDrawer() {
                 setReaderRight("");
                 setReaderLeft("");
                 setLensOptionKey("");
-                setEyewearProceeded(true);
-                setEyewearStep("lensType");
+                setEyewearProceeded(false);
+                setEyewearStep("strengthForm");
               })}
 
               {topOptionButton("Non Prescription", "NON_RX", () => {
@@ -1303,25 +1309,107 @@ function renderEyewearDrawer() {
                 {mode === "READER" ? "STEP 2 - Select Reader Power" : "STEP 2 - Select Strength (SS)"}
               </h4>
               {mode === "READER" ? (
-                <div className="rounded-md border border-slate-200 p-3">
-                  <p className="mb-2 text-sm font-semibold text-slate-800">Reader Power</p>
-                  <div>
-                    <label className="mb-1 block text-xs text-slate-500">Power (Strength)</label>
-                    <select
-                      value={readerRight}
-                      onChange={(event) => {
-                        setReaderRight(event.target.value);
-                        setReaderLeft(event.target.value);
-                      }}
-                      className="w-full rounded-md border border-slate-300 bg-white text-slate-900 px-2 py-2 text-sm"
-                    >
-                      <option value="">Select Power</option>
-                      {BIFOCAL_PROGRESSIVE_ADD_RANGE.map((value) => (
-                        <option key={value} value={value}>
-                          {value}
-                        </option>
-                      ))}
-                    </select>
+                <div className="space-y-3">
+                  <div className="rounded-md border border-slate-200 p-3">
+                    <p className="mb-2 text-sm font-semibold text-slate-800">Right Eye</p>
+                    <div className="grid grid-cols-4 gap-2">
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">SPH</label>
+                        <select
+                          value="0.00"
+                          disabled
+                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-2 text-sm text-slate-900"
+                        >
+                          <option value="0.00">0.00</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">CYL</label>
+                        <select
+                          value="0.00"
+                          disabled
+                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-2 text-sm text-slate-900"
+                        >
+                          <option value="0.00">0.00</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">Axis</label>
+                        <select
+                          value="0"
+                          disabled
+                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-2 text-sm text-slate-900"
+                        >
+                          <option value="0">0</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">ADD</label>
+                        <select
+                          value={readerRight}
+                          onChange={(event) => setReaderRight(event.target.value)}
+                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-2 text-sm text-slate-900"
+                        >
+                          <option value="">Select</option>
+                          {BIFOCAL_PROGRESSIVE_ADD_RANGE.map((value) => (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-md border border-slate-200 p-3">
+                    <p className="mb-2 text-sm font-semibold text-slate-800">Left Eye</p>
+                    <div className="grid grid-cols-4 gap-2">
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">SPH</label>
+                        <select
+                          value="0.00"
+                          disabled
+                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-2 text-sm text-slate-900"
+                        >
+                          <option value="0.00">0.00</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">CYL</label>
+                        <select
+                          value="0.00"
+                          disabled
+                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-2 text-sm text-slate-900"
+                        >
+                          <option value="0.00">0.00</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">Axis</label>
+                        <select
+                          value="0"
+                          disabled
+                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-2 text-sm text-slate-900"
+                        >
+                          <option value="0">0</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs text-slate-500">ADD</label>
+                        <select
+                          value={readerLeft}
+                          onChange={(event) => setReaderLeft(event.target.value)}
+                          className="w-full rounded-md border border-slate-300 bg-white px-2 py-2 text-sm text-slate-900"
+                        >
+                          <option value="">Select</option>
+                          {BIFOCAL_PROGRESSIVE_ADD_RANGE.map((value) => (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -1363,7 +1451,10 @@ function renderEyewearDrawer() {
                 type="button"
                 onClick={() => {
                   if (mode === "READER") {
-                    setReaderLeft(readerRight);
+                    if (!readerRight || !readerLeft) {
+                      toast.error("Select reader power");
+                      return;
+                    }
                   } else {
                     if (!readerRight || !readerLeft) {
                       toast.error("Select strength");
@@ -1384,7 +1475,7 @@ function renderEyewearDrawer() {
             <div className="space-y-3">
               <button
                 type="button"
-                onClick={() => setEyewearStep(mode === "PRESCRIPTION" ? "prescriptionForm" : "option")}
+                onClick={() => setEyewearStep(mode === "PRESCRIPTION" ? "prescriptionForm" : mode === "READER" ? "strengthForm" : "option")}
                 className="rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200"
               >
                 &lt;- Back

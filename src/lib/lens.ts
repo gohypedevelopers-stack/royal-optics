@@ -139,6 +139,8 @@ export const EYEGLASS_PRESCRIPTION_OPTIONS: Record<string, LensOption[]> = {
 export const SUNGLASS_PRESCRIPTION_OPTIONS: Record<string, LensOption[]> = {
   single_vision: [
     { key: "drv_sv_tinted_uv", label: "Tinted UV (any color & darkness)", requiresTint: true },
+    { key: "drv_sv_polarized_basic", label: "Polarized - Basic" },
+    { key: "drv_sv_polarized_premium", label: "Polarized - Advance" },
     { key: "drv_sv_day_night_basic", label: "Day & Night - Basic" },
     { key: "drv_sv_day_night_turbo", label: "Day & Night - Turbo" },
   ],
@@ -149,6 +151,8 @@ export const SUNGLASS_PRESCRIPTION_OPTIONS: Record<string, LensOption[]> = {
   ],
   progressive: [
     { key: "drv_pg_tinted_uv", label: "Tinted UV (any color & darkness)", requiresTint: true },
+    { key: "drv_pg_polarized_basic", label: "Polarized - Basic" },
+    { key: "drv_pg_polarized_premium", label: "Polarized - Advance" },
     { key: "drv_pg_day_night_basic", label: "Day & Night - Basic" },
     { key: "drv_pg_day_night_turbo", label: "Day & Night - Turbo" },
   ],

@@ -29,28 +29,32 @@ function colorValue(color: string) {
 }
 
 function parseDescriptionTable(description: string) {
-  const normalized = description.replace(/:\s*-/g, ":").replace(/\s+/g, " ").trim();
-  if (!normalized.includes(":")) {
+  if (!description.includes(":")) {
     return [];
   }
 
-  const matches = Array.from(normalized.matchAll(/([A-Za-z][A-Za-z0-9 /_]+):\s*/g));
-  if (matches.length <= 1) {
-    return [];
-  }
+  const lines = description.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const result: { key: string; value: string }[] = [];
 
-  return matches
-    .map((match, index) => {
-      const nextMatch = matches[index + 1];
-      const valueStart = match.index + match[0].length;
-      const valueEnd = nextMatch ? nextMatch.index : normalized.length;
-      const value = normalized.slice(valueStart, valueEnd).trim();
-      return {
+  for (const line of lines) {
+    const match = line.match(/^([^:]+):\s*-?\s*(.*)$/);
+    if (match && match[1].length <= 40) {
+      result.push({
         key: match[1].trim(),
-        value: value || "-",
-      };
-    })
-    .filter((item) => item.key);
+        value: match[2].trim() || "-",
+      });
+    } else {
+      if (result.length > 0) {
+        result[result.length - 1].value += " " + line;
+      }
+    }
+  }
+
+  if (result.length > 1) {
+    return result;
+  }
+
+  return [];
 }
 
 export default function ProductDetails({ product, lensPrices, supportPhone }: ProductDetailsProps) {
@@ -172,7 +176,7 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
               </table>
             </div>
           ) : (
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">{product.description}</p>
+            <p className="mt-2 whitespace-pre-wrap text-base leading-7 text-slate-700">{product.description}</p>
           )}
         </div>
 

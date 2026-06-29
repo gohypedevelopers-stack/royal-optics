@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PackageOpen } from "lucide-react";
+import { ChevronRight, PackageOpen } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import ProductDetails from "@/components/ProductDetails";
 import ProductImageGallery from "@/components/ProductImageGallery";
@@ -53,10 +54,30 @@ export default async function ProductDetailPage({
   }, {});
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] px-3 pb-10 pt-4 sm:px-5 lg:px-8 lg:pt-6">
-      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-3 shadow-sm sm:p-5 lg:p-6">
+    <div className="mx-auto w-full max-w-[1500px] px-2.5 pb-28 pt-2.5 sm:px-5 sm:pt-4 lg:px-8 lg:pb-10 lg:pt-6">
+      <nav className="mb-2.5 flex flex-wrap items-center gap-1 text-[0.72rem] text-slate-500 sm:mb-4 sm:gap-1.5 sm:text-sm">
+        <Link href="/" className="transition hover:text-slate-900">
+          Home
+        </Link>
+        <ChevronRight size={15} className="text-slate-400" />
+        <Link href="/products" className="transition hover:text-slate-900">
+          Products
+        </Link>
+        {product.category ? (
+          <>
+            <ChevronRight size={15} className="text-slate-400" />
+            <Link href={`/products?category=${product.category.slug}`} className="transition hover:text-slate-900">
+              {product.category.name}
+            </Link>
+          </>
+        ) : null}
+        <ChevronRight size={15} className="text-slate-400" />
+        <span className="font-semibold text-slate-700">{product.name}</span>
+      </nav>
+
+      <section className="relative overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white p-2 shadow-sm sm:rounded-3xl sm:p-5 lg:p-6">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.08),transparent_40%),radial-gradient(circle_at_bottom_left,rgba(245,158,11,0.09),transparent_38%)]" />
-        <div className="relative grid gap-6 xl:grid-cols-[0.85fr_1.15fr] xl:items-start">
+        <div className="relative grid gap-4 sm:gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <ProductImageGallery images={product.images} name={product.name} mainImage={product.mainImage} />
           <ProductDetails
             product={{
@@ -77,11 +98,16 @@ export default async function ProductDetailPage({
         </div>
       </section>
 
-      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-        <h2 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
-          <PackageOpen size={22} className="text-blue-600" />
-          Related Products
-        </h2>
+      <section className="mt-6 rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm sm:mt-8 sm:rounded-2xl sm:p-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
+              <PackageOpen size={22} className="text-blue-600" />
+              Related Products
+            </h2>
+            <p className="text-sm text-slate-500">More picks from the same category that match this shopping journey.</p>
+          </div>
+        </div>
         {relatedProducts.length > 0 ? (
           <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {relatedProducts.map((item) => (

@@ -74,6 +74,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           isTrending: payload.isTrending,
           isFeatured: payload.isFeatured,
           featured,
+          discount: payload.discount,
         },
       });
 

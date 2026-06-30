@@ -25,6 +25,7 @@ type ProductDetailsProps = {
     name: string;
     description: string;
     price: number;
+    discount?: number;
     rating: number;
     stock: number;
     customizationType: "EYEGLASSES" | "SUNGLASSES" | "CONTACT_LENSES" | "ACCESSORIES";
@@ -170,8 +171,22 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-[1.35rem] font-extrabold leading-snug tracking-tight text-slate-900 sm:text-4xl sm:leading-tight">{product.name}</h1>
-            <p className="text-[1.65rem] font-extrabold leading-none tracking-tight text-slate-900 sm:text-3xl">{formatINR(Number(product.price))}</p>
+            <h1 className="text-[1.35rem] font-bold leading-snug tracking-tight text-slate-900 sm:text-4xl sm:leading-tight">{product.name}</h1>
+            <div className="flex items-center gap-3">
+              <p className="text-2xl font-bold tracking-tight text-slate-800 sm:text-3xl">
+                {formatINR(product.discount ? product.price - (product.price * product.discount) / 100 : product.price)}
+              </p>
+              {!!product.discount && product.discount > 0 && (
+                <>
+                  <p className="text-lg font-medium text-slate-400 line-through">
+                    {formatINR(product.price)}
+                  </p>
+                  <span className="rounded-md bg-green-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-green-700">
+                    {product.discount}% OFF
+                  </span>
+                </>
+              )}
+            </div>
             <p className="max-w-xl text-[0.84rem] leading-5 text-slate-500 sm:text-sm sm:leading-6">{primaryActionCopy}</p>
             <div className="flex flex-wrap gap-2 pt-1">
               {productHighlights.map((item) => (
@@ -399,7 +414,9 @@ export default function ProductDetails({ product, lensPrices, supportPhone }: Pr
             <p className="text-[0.6rem] font-bold uppercase tracking-[0.16em] text-slate-500 sm:text-[0.68rem]">
               {isAccessory ? "Price" : "From"}
             </p>
-            <p className="truncate text-[1rem] font-extrabold tracking-tight text-slate-950 sm:text-lg">{formatINR(Number(product.price))}</p>
+            <p className="truncate text-[1rem] font-extrabold tracking-tight text-slate-950 sm:text-lg">
+              {formatINR(product.discount ? product.price - (product.price * product.discount) / 100 : product.price)}
+            </p>
           </div>
           <button
             type="button"

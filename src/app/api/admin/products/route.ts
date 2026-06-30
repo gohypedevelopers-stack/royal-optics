@@ -106,6 +106,7 @@ export async function POST(request: Request) {
         isTrending: payload.isTrending,
         isFeatured: payload.isFeatured,
         featured,
+        discount: payload.discount,
         images: {
           create: combinedImages.map((url, index) => ({
             url,

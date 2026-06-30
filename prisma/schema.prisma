@@ -169,6 +169,7 @@ model Product {
   isTrending        Boolean           @default(false)
   isFeatured        Boolean           @default(false)
   featured          Boolean           @default(false)
+  discount          Int               @default(0)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   category          Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)

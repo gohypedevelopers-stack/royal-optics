@@ -46,19 +46,15 @@ async function getBanners() {
 async function getCategories() {
   try {
     return await prisma.category.findMany({
-      where: { parentId: null },
       select: { id: true, name: true, slug: true, imageUrl: true },
       orderBy: { name: "asc" },
-      take: 4,
     });
   } catch (error) {
     if (isDatabaseUnavailable(error)) return [];
     if (!isSchemaMismatch(error)) throw error;
     const fallback = await prisma.category.findMany({
-      where: { parentId: null },
       select: { id: true, name: true, slug: true },
       orderBy: { name: "asc" },
-      take: 4,
     });
     return fallback.map((item) => ({ ...item, imageUrl: null as string | null }));
   }
@@ -75,6 +71,7 @@ async function getTrendingProducts() {
         slug: true,
         name: true,
         price: true,
+        discount: true,
         mainImage: true,
         images: {
           orderBy: { sortOrder: "asc" },
@@ -207,7 +204,7 @@ export default async function HomePage() {
       title: "Eyeglasses",
       description: "Trendy and durable eyeglass frames for everyone.",
       image: "/Eyeglasses.jpg",
-      href: findCategoryHref(["eye", "frame", "eyewear"], "/products?q=eyeglasses"),
+      href: findCategoryHref(["eyeglasses", "eyeglass"], "/products?q=eyeglasses"),
       cta: "Shop Eyeglasses",
       icon: <Glasses size={16} />,
     },
@@ -275,7 +272,16 @@ export default async function HomePage() {
                     {/* Action row */}
                     <div className="px-5 pb-5">
                       <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-4">
-                        <span className="text-[1.1rem] font-bold text-slate-900">{formatINR(Number(product.price))}</span>
+                        <div className="flex flex-col">
+                          <span className="text-[1.1rem] font-bold text-slate-900">
+                            {formatINR(product.discount ? Number(product.price) - (Number(product.price) * product.discount) / 100 : Number(product.price))}
+                          </span>
+                          {!!product.discount && product.discount > 0 && (
+                            <span className="text-xs font-medium text-slate-400 line-through">
+                              {formatINR(Number(product.price))}
+                            </span>
+                          )}
+                        </div>
                         <span className="inline-flex items-center gap-1 rounded-full bg-slate-950 px-3.5 py-2 text-[0.72rem] font-semibold text-white transition-all duration-300 group-hover:bg-blue-600 group-hover:shadow-[0_4px_12px_rgba(37,99,235,0.25)]">
                           View Details
                           <span className="transition-transform duration-300 group-hover:translate-x-0.5">→</span>

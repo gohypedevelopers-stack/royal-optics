@@ -13,6 +13,7 @@ type ProductCardProps = {
     name: string;
     slug: string;
     price: number;
+    discount?: number;
     rating: number;
     customizationType: string;
     mainImage?: string | null;
@@ -78,7 +79,23 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="mt-1 text-xs text-slate-500">Rating {Number(product.rating).toFixed(1)} / 5</p>
         </div>
 
-        <div className="text-[1.2rem] font-semibold text-slate-900">{formatINR(Number(product.price))}</div>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <span className="text-[1.2rem] font-semibold text-slate-900">
+              {formatINR(product.discount ? product.price - (product.price * product.discount) / 100 : product.price)}
+            </span>
+            {!!product.discount && product.discount > 0 && (
+              <span className="rounded bg-green-100 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-green-700">
+                {product.discount}% OFF
+              </span>
+            )}
+          </div>
+          {!!product.discount && product.discount > 0 && (
+            <span className="text-xs font-medium text-slate-400 line-through">
+              {formatINR(product.price)}
+            </span>
+          )}
+        </div>
 
         <div className="flex gap-2">
           <button

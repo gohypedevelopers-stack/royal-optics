@@ -141,6 +141,7 @@ export const productSchema = z.object({
   isTrending: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
   featured: z.boolean().default(false),
+  discount: z.coerce.number().int().min(0).max(100).default(0),
   imageUrls: z.array(z.string()).default([]),
 });
 

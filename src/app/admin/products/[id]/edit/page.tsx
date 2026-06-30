@@ -53,6 +53,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
             isTrending: item.isTrending,
             isFeatured: item.isFeatured,
             featured: item.featured,
+            discount: item.discount,
             imageUrls: item.images.map((image) => image.url),
           }}
         />

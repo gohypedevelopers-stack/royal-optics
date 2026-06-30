@@ -54,6 +54,7 @@ export default function ProductForm({
       isTrending: initial?.isTrending || false,
       isFeatured: initial?.isFeatured || false,
       featured: initial?.featured || false,
+      discount: initial?.discount || 0,
       imageUrls: initial?.imageUrls || [],
     },
   });
@@ -159,6 +160,10 @@ export default function ProductForm({
         <div className="space-y-2">
           <label className="text-sm font-medium">Stock</label>
           <Input type="number" {...form.register("stock", { valueAsNumber: true })} />
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Discount (%)</label>
+          <Input type="number" min="0" max="100" {...form.register("discount", { valueAsNumber: true })} />
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium">Rating</label>

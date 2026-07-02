@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronDown, Heart, Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { ChevronDown, Heart, Menu, Search, ShoppingCart, User, X, Facebook, Instagram } from "lucide-react";
 import { cn } from "@/lib/utils";
 import UserLogoutButton from "@/components/UserLogoutButton";
 
@@ -334,6 +334,14 @@ export default function Navbar({ categories, cartCount, wishlistCount, isLoggedI
             <a href="mailto:royalopticians1169@gmail.com" className="block border-b border-slate-200 px-3 py-2.5 text-[17px] text-black hover:bg-slate-50">
               Email Us
             </a>
+            <div className="flex items-center gap-4 border-b border-slate-200 px-3 py-2.5">
+              <a href="https://www.facebook.com/royaloptics2025/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-slate-700 hover:text-blue-600">
+                <Facebook size={20} />
+              </a>
+              <a href="https://www.instagram.com/royaloptics.in/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-slate-700 hover:text-pink-600">
+                <Instagram size={20} />
+              </a>
+            </div>
             {!isLoggedIn ? (
               <>
                 <Link href="/login" onClick={() => setMenuOpen(false)} className="block border-b border-slate-200 px-3 py-2.5 text-[17px] text-black hover:bg-slate-50">

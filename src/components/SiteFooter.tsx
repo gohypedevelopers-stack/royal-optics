@@ -54,10 +54,10 @@ export default async function SiteFooter() {
             <Link href="/policies">Return & Refund</Link>
           </div>
           <div className="mt-3 flex items-center gap-3 text-slate-700">
-            <a href="#" aria-label="Facebook" className="hover:text-blue-600">
+            <a href="https://www.facebook.com/royaloptics2025/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:text-blue-600">
               <Facebook size={14} />
             </a>
-            <a href="#" aria-label="Instagram" className="hover:text-pink-600">
+            <a href="https://www.instagram.com/royaloptics.in/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-pink-600">
               <Instagram size={14} />
             </a>
           </div>

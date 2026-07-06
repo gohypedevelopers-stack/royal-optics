@@ -1552,9 +1552,16 @@ function renderEyewearDrawer() {
                               active ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-800"
                             }`}
                           >
-                            <span className="inline-flex items-center gap-2">
-                              <span className={`h-4 w-4 rounded-full border ${active ? "border-emerald-600 bg-emerald-600" : "border-slate-400 bg-white"}`} />
-                              {displayLabel}
+                            <span className="flex items-center gap-2">
+                              <span className={`h-4 w-4 shrink-0 rounded-full border ${active ? "border-emerald-600 bg-emerald-600" : "border-slate-400 bg-white"}`} />
+                              <span className="flex flex-col text-left">
+                                <span>{displayLabel}</span>
+                                {option.description && (
+                                  <span className={`text-[0.7rem] leading-[1.1] mt-0.5 ${active ? "text-emerald-700/80" : "text-slate-500"} font-normal`}>
+                                    {option.description}
+                                  </span>
+                                )}
+                              </span>
                             </span>
                             <strong className="text-slate-900 font-bold">{formatINR(price)}</strong>
                           </button>

@@ -331,7 +331,7 @@ export default function Navbar({ categories, cartCount, wishlistCount, isLoggedI
             <a href="tel:+919911522006" className="block border-b border-slate-200 px-3 py-2.5 text-[17px] text-black hover:bg-slate-50">
               Call: +91 9911522006
             </a>
-            <a href="mailto:royalopticians1169@gmail.com" className="block border-b border-slate-200 px-3 py-2.5 text-[17px] text-black hover:bg-slate-50">
+            <a href="mailto:reach@Royaloptics.in" className="block border-b border-slate-200 px-3 py-2.5 text-[17px] text-black hover:bg-slate-50">
               Email Us
             </a>
             <div className="flex items-center gap-4 border-b border-slate-200 px-3 py-2.5">

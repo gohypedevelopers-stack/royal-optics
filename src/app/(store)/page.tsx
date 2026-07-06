@@ -5,6 +5,7 @@ import SafeImage from "@/components/SafeImage";
 import { Flame, Glasses, Eye, HandHeart, Tag, Contact, Package } from "lucide-react";
 import CategoryGrid from "@/components/CategoryGrid";
 import HeroSlider from "@/components/HeroSlider";
+import TestimonialSlider from "@/components/TestimonialSlider";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
@@ -94,7 +95,7 @@ async function getTestimonials() {
     return await prisma.testimonial.findMany({
       where: { isApproved: true, status: "APPROVED" },
       orderBy: { createdAt: "desc" },
-      take: 6,
+      take: 12,
       select: {
         id: true,
         name: true,
@@ -108,7 +109,7 @@ async function getTestimonials() {
       return await prisma.testimonial.findMany({
         where: { isApproved: true },
         orderBy: { createdAt: "desc" },
-        take: 6,
+        take: 12,
         select: {
           id: true,
           name: true,
@@ -344,39 +345,7 @@ export default async function HomePage() {
               {testimonials.length === 0 ? (
                 <p className="text-center text-[0.96rem] text-slate-500">No testimonials yet. Be the first to add one.</p>
               ) : (
-                <div className="grid gap-5 md:grid-cols-3">
-                  {testimonials.slice(0, 3).map((item) => {
-                    const initials = item.name
-                      .split(" ")
-                      .filter(Boolean)
-                      .map((part) => part[0])
-                      .slice(0, 2)
-                      .join("")
-                      .toUpperCase();
-                    return (
-                      <article
-                        key={item.id}
-                        className="relative overflow-hidden rounded-[1.6rem] border border-slate-200 bg-white p-5 shadow-[0_14px_35px_rgba(15,23,42,0.08)]"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-lg font-semibold text-blue-600">
-                            "
-                          </span>
-                          <span className="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                            Rating {item.rating}/5
-                          </span>
-                        </div>
-                        <p className="mt-4 line-clamp-4 text-[0.98rem] leading-7 text-slate-700">"{item.message}"</p>
-                        <div className="mt-5 flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-emerald-400 text-sm font-semibold text-white">
-                            {initials || "CU"}
-                          </div>
-                          <p className="text-sm font-semibold text-slate-900">{item.name}</p>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
+                <TestimonialSlider testimonials={testimonials} />
               )}
             </div>
 

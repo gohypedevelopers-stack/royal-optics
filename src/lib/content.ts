@@ -157,7 +157,7 @@ export const defaultPrivacyContent: PrivacyPageContent = {
     },
   ],
   contactLabel: "For privacy-related concerns, please reach out to us:",
-  email: "royalopticians1169@gmail.com",
+  email: "reach@Royaloptics.in",
   phone: "+91 9911522006",
 };
 

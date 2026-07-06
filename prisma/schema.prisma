@@ -165,6 +165,7 @@ model Product {
   colors            String[]          @default([])
   customizationType CustomizationType
   powerRange        String?
+  gender            String?
   status            ProductStatus     @default(ACTIVE)
   isTrending        Boolean           @default(false)
   isFeatured        Boolean           @default(false)

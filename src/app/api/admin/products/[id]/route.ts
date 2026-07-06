@@ -37,7 +37,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const { id } = await params;
   try {
-    const payload = productSchema.parse(await request.json());
+    const json = await request.json();
+    const payload = productSchema.parse(json);
     const imageUrls = payload.additionalImages?.length ? payload.additionalImages : payload.imageUrls;
     const mainImage = payload.mainImage || imageUrls[0] || null;
     const featured = payload.featured || payload.isFeatured;
@@ -70,6 +71,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           colors: payload.colors,
           customizationType: payload.customizationType,
           powerRange: payload.powerRange || null,
+          gender: payload.gender || null,
           status: payload.status,
           isTrending: payload.isTrending,
           isFeatured: payload.isFeatured,
@@ -107,6 +109,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     return NextResponse.json({ success: true, item });
   } catch (error: any) {
+    console.error("PATCH Error:", error);
     return NextResponse.json({ error: error?.issues?.[0]?.message || "Failed to update product" }, { status: 400 });
   }
 }

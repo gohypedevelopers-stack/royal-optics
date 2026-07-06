@@ -102,6 +102,7 @@ export async function POST(request: Request) {
         colors: payload.colors,
         customizationType: payload.customizationType,
         powerRange: payload.powerRange || null,
+        gender: payload.gender || null,
         status: payload.status,
         isTrending: payload.isTrending,
         isFeatured: payload.isFeatured,

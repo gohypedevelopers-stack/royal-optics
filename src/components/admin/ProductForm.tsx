@@ -50,6 +50,7 @@ export default function ProductForm({
       additionalImages: initial?.additionalImages || [],
       customizationType: initial?.customizationType || "EYEGLASSES",
       powerRange: initial?.powerRange || "",
+      gender: initial?.gender || "",
       status: initial?.status || "ACTIVE",
       isTrending: initial?.isTrending || false,
       isFeatured: initial?.isFeatured || false,
@@ -67,6 +68,7 @@ export default function ProductForm({
   const additionalImages = form.watch("additionalImages");
   const mainImage = form.watch("mainImage");
   const colorsText = (form.watch("colors") || []).join(", ");
+  const productType = form.watch("productType");
 
   async function onSubmit(values: FormValues) {
     try {
@@ -145,6 +147,20 @@ export default function ProductForm({
             <option value="ACCESSORIES">Accessories</option>
           </select>
         </div>
+        
+        {(productType === "EYEGLASSES" || productType === "SUNGLASSES") && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Gender</label>
+            <select className="ro-input h-10" {...form.register("gender")}>
+              <option value="">Unisex / None</option>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+              <option value="boy">Boy</option>
+              <option value="girl">Girl</option>
+            </select>
+          </div>
+        )}
+
         <div className="space-y-2">
           <label className="text-sm font-medium">Status</label>
           <select className="ro-input h-10" {...form.register("status")}>

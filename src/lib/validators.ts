@@ -137,6 +137,7 @@ export const productSchema = z.object({
   additionalImages: z.array(z.string()).default([]),
   customizationType: z.enum(["EYEGLASSES", "SUNGLASSES", "CONTACT_LENSES", "ACCESSORIES"]),
   powerRange: z.string().optional().nullable(),
+  gender: z.string().optional().nullable(),
   status: z.enum(["DRAFT", "ACTIVE", "INACTIVE"]).default("ACTIVE"),
   isTrending: z.boolean().default(false),
   isFeatured: z.boolean().default(false),

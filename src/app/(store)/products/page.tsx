@@ -51,6 +51,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const categorySlug = paramValue(resolvedSearchParams.category);
   const sort = paramValue(resolvedSearchParams.sort) || "relevance";
 
+  const subFilter = paramValue(resolvedSearchParams.sub);
+
   const categories = await prisma.category.findMany({
     orderBy: [{ createdAt: "asc" }],
     select: { id: true, name: true, slug: true, parentId: true },
@@ -74,6 +76,10 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     status: "ACTIVE",
     ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
   };
+
+  if (subFilter) {
+    where.gender = subFilter;
+  }
 
   if (query) {
     const ids = await searchProductIds(query, 120);
@@ -134,6 +140,28 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             ));
           })()}
         </div>
+
+        {(categorySlug === "sunglasses" || categorySlug === "eyeglasses") && (
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3 animate-in fade-in slide-in-from-top-2 duration-500">
+            {["Men", "Women", "Boy", "Girl"].map((subName) => {
+              const subSlug = subName.toLowerCase();
+              const isActive = subFilter === subSlug;
+              return (
+                <Link
+                  key={subSlug}
+                  href={isActive ? `/products?category=${categorySlug}` : `/products?category=${categorySlug}&sub=${subSlug}`}
+                  className={`rounded-full px-5 py-2 text-[0.78rem] font-bold uppercase tracking-widest transition-all duration-300 ${
+                    isActive
+                      ? "bg-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.25)] border border-transparent"
+                      : "border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 hover:border-slate-300 shadow-sm"
+                  }`}
+                >
+                  {subName}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {products.length === 0 ? (

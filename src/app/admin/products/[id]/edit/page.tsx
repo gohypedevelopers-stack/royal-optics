@@ -49,6 +49,7 @@ export default async function AdminProductEditPage({ params }: { params: Promise
             additionalImages: item.images.map((image) => image.url),
             customizationType: item.customizationType as any,
             powerRange: item.powerRange || "",
+            gender: item.gender || "",
             status: item.status as any,
             isTrending: item.isTrending,
             isFeatured: item.isFeatured,

@@ -36,7 +36,9 @@ export async function POST(request: Request) {
       // Write file
       await fs.writeFile(publicPath, buffer);
 
-      return NextResponse.json({ success: true, url: filePathVal });
+      // Serve via API route so runtime-uploaded files are accessible
+      const serveUrl = filePathVal.replace(/^\/uploads\//, "/api/uploads/serve/");
+      return NextResponse.json({ success: true, url: serveUrl });
     } catch (writeError: any) {
       console.warn("Local filesystem write failed, falling back to Base64 data URL:", writeError.message);
       

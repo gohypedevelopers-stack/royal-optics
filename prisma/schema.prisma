@@ -165,6 +165,9 @@ model Product {
   colors            String[]          @default([])
   customizationType CustomizationType
   powerRange        String?
+  contactLensType          String?
+  contactLensCategory      String?
+  contactLensDisposability String?
   gender            String?
   status            ProductStatus     @default(ACTIVE)
   isTrending        Boolean           @default(false)
@@ -185,6 +188,9 @@ model Product {
   @@index([customizationType])
   @@index([productType])
   @@index([status])
+  @@index([contactLensType])
+  @@index([contactLensCategory])
+  @@index([contactLensDisposability])
 }
 
 model ProductImage {

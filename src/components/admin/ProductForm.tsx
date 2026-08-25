@@ -50,6 +50,9 @@ export default function ProductForm({
       additionalImages: initial?.additionalImages || [],
       customizationType: initial?.customizationType || "EYEGLASSES",
       powerRange: initial?.powerRange || "",
+      contactLensType: initial?.contactLensType || "",
+      contactLensCategory: initial?.contactLensCategory || "",
+      contactLensDisposability: initial?.contactLensDisposability || "",
       gender: initial?.gender || "",
       status: initial?.status || "ACTIVE",
       isTrending: initial?.isTrending || false,
@@ -69,6 +72,9 @@ export default function ProductForm({
   const mainImage = form.watch("mainImage");
   const colorsText = (form.watch("colors") || []).join(", ");
   const productType = form.watch("productType");
+  const customizationType = form.watch("customizationType");
+  const contactLensType = form.watch("contactLensType");
+  const contactLensCategory = form.watch("contactLensCategory");
 
   async function onSubmit(values: FormValues) {
     try {
@@ -148,6 +154,101 @@ export default function ProductForm({
           </select>
         </div>
         
+        {(productType === "CONTACT_LENSES" || customizationType === "CONTACT_LENSES") && (
+          <div className="col-span-full space-y-4 rounded-xl border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-900/50 dark:bg-blue-950/20">
+            <div className="flex items-center justify-between border-b border-blue-200/60 pb-2.5">
+              <h3 className="text-sm font-bold text-blue-900 dark:text-blue-200">
+                Contact Lens Classification & Filters
+              </h3>
+              <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
+                Step-by-step filter setup
+              </span>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {/* Step 1: Lens Type */}
+              <div className="space-y-1.5">
+                <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-800">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">1</span>
+                  Lens Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  className="ro-input h-10 border-blue-300 bg-white shadow-sm"
+                  {...form.register("contactLensType", {
+                    onChange: (e) => {
+                      const val = e.target.value;
+                      if (val !== "POWER") {
+                        form.setValue("contactLensCategory", "");
+                      }
+                      if (val === "CARE") {
+                        form.setValue("contactLensDisposability", "");
+                      }
+                    },
+                  })}
+                >
+                  <option value="">-- Select Lens Type --</option>
+                  <option value="POWER">Power Lenses</option>
+                  <option value="NON_POWER">Non-Power Lenses</option>
+                  <option value="CARE">Contact Lenses Care</option>
+                </select>
+              </div>
+
+              {/* Step 2: Clear vs Color (Visible if POWER or if category already has value) */}
+              {(contactLensType === "POWER" || !!form.watch("contactLensCategory")) && (
+                <div className="space-y-1.5 animate-in fade-in duration-300">
+                  <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-800">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">2</span>
+                    Lens Sub-Category <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    className="ro-input h-10 border-blue-300 bg-white shadow-sm"
+                    {...form.register("contactLensCategory")}
+                  >
+                    <option value="">-- Select Category --</option>
+                    <option value="CLEAR">Clear Lenses</option>
+                    <option value="COLOR">Color Lenses</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Step 3: Modality / Replacement Schedule */}
+              {(contactLensType === "POWER" || contactLensType === "NON_POWER" || !!form.watch("contactLensDisposability")) && (
+                <div className="space-y-1.5 animate-in fade-in duration-300">
+                  <label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-800">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] text-white">
+                      {contactLensType === "POWER" ? "3" : "2"}
+                    </span>
+                    Modality / Disposability
+                  </label>
+                  <select className="ro-input h-10 border-blue-300 bg-white shadow-sm" {...form.register("contactLensDisposability")}>
+                    <option value="">-- Select Modality --</option>
+                    <option value="DAILIES">Dailies</option>
+                    <option value="2_WEEKS">2 Weeks</option>
+                    <option value="WEEKLY">Weekly</option>
+                    <option value="MONTHLY">Monthly</option>
+                    <option value="3_MONTHS">3 Months</option>
+                    <option value="6_MONTHS">6 Months</option>
+                    <option value="YEARLY">Yearly</option>
+                    <option value="TORIC">Toric (SPH+CYL)</option>
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Helper message if previous selection is missing */}
+            {!contactLensType && (
+              <p className="text-xs text-blue-700/80 italic">
+                Select <strong>Lens Type</strong> above to reveal further sub-category & modality choices.
+              </p>
+            )}
+            {contactLensType === "POWER" && !contactLensCategory && (
+              <p className="text-xs text-blue-700/80 italic">
+                Select <strong>Clear Lenses</strong> or <strong>Color Lenses</strong> to reveal available modality options.
+              </p>
+            )}
+          </div>
+        )}
+
         {(productType === "EYEGLASSES" || productType === "SUNGLASSES") && (
           <div className="space-y-2">
             <label className="text-sm font-medium">Gender</label>

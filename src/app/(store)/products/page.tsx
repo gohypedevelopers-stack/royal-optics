@@ -53,6 +53,10 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
   const subFilter = paramValue(resolvedSearchParams.sub);
 
+  const clType = paramValue(resolvedSearchParams.cl_type);
+  const clCat = paramValue(resolvedSearchParams.cl_cat);
+  const clDisp = paramValue(resolvedSearchParams.cl_disp);
+
   const categories = await prisma.category.findMany({
     orderBy: [{ createdAt: "asc" }],
     select: { id: true, name: true, slug: true, parentId: true },
@@ -79,6 +83,16 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
   if (subFilter) {
     where.gender = subFilter;
+  }
+
+  if (clType) {
+    where.contactLensType = clType;
+  }
+  if (clCat) {
+    where.contactLensCategory = clCat;
+  }
+  if (clDisp) {
+    where.contactLensDisposability = clDisp;
   }
 
   if (query) {
@@ -160,6 +174,136 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                 </Link>
               );
             })}
+          </div>
+        )}
+
+        {categorySlug === "contact-lenses" && (
+          <div className="mt-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
+            {/* Level 1: Main Type */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
+              {[
+                { label: "All Contact Lenses", type: "" },
+                { label: "Power Lenses", type: "POWER" },
+                { label: "Non-Power Lenses", type: "NON_POWER" },
+                { label: "Contact Lenses Care", type: "CARE" },
+              ].map((item) => {
+                const isActive = clType === item.type;
+                const href = item.type
+                  ? `/products?category=contact-lenses&cl_type=${item.type}`
+                  : `/products?category=contact-lenses`;
+                return (
+                  <Link
+                    key={item.label}
+                    href={href}
+                    className={`rounded-full px-4 py-2 text-[0.78rem] font-bold uppercase tracking-wider transition-all duration-300 ${
+                      isActive
+                        ? "bg-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.25)] border border-transparent"
+                        : "border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-900 shadow-sm"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Level 2: Sub-category (Clear vs Color for Power Lenses) */}
+            {clType === "POWER" && (
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-1 border-t border-slate-100">
+                {[
+                  { label: "All Power Lenses", cat: "" },
+                  { label: "Clear Lenses", cat: "CLEAR" },
+                  { label: "Color Lenses", cat: "COLOR" },
+                ].map((item) => {
+                  const isActive = clCat === item.cat;
+                  const href = item.cat
+                    ? `/products?category=contact-lenses&cl_type=POWER&cl_cat=${item.cat}`
+                    : `/products?category=contact-lenses&cl_type=POWER`;
+                  return (
+                    <Link
+                      key={item.label}
+                      href={href}
+                      className={`rounded-full px-3.5 py-1.5 text-[0.74rem] font-semibold tracking-wide transition-all duration-300 ${
+                        isActive
+                          ? "bg-slate-900 text-white shadow-sm"
+                          : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Level 3: Disposability / Modality */}
+            {(clType === "POWER" || clType === "NON_POWER" || !clType) && (
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                {(() => {
+                  let options: Array<{ label: string; val: string }> = [];
+
+                  if (clType === "POWER" && clCat === "CLEAR") {
+                    options = [
+                      { label: "Dailies", val: "DAILIES" },
+                      { label: "2 Weeks", val: "2_WEEKS" },
+                      { label: "Monthly", val: "MONTHLY" },
+                      { label: "Yearly", val: "YEARLY" },
+                      { label: "Toric (SPH+CYL)", val: "TORIC" },
+                    ];
+                  } else if (clType === "POWER" && clCat === "COLOR") {
+                    options = [
+                      { label: "Dailies", val: "DAILIES" },
+                      { label: "Monthly", val: "MONTHLY" },
+                      { label: "3 Months", val: "3_MONTHS" },
+                      { label: "6 Months", val: "6_MONTHS" },
+                      { label: "Yearly", val: "YEARLY" },
+                    ];
+                  } else if (clType === "NON_POWER") {
+                    options = [
+                      { label: "Dailies", val: "DAILIES" },
+                      { label: "Weekly", val: "WEEKLY" },
+                      { label: "Monthly", val: "MONTHLY" },
+                      { label: "3 Months", val: "3_MONTHS" },
+                      { label: "6 Months", val: "6_MONTHS" },
+                      { label: "Yearly", val: "YEARLY" },
+                    ];
+                  } else {
+                    options = [
+                      { label: "Dailies", val: "DAILIES" },
+                      { label: "Weekly / 2 Weeks", val: "MONTHLY" },
+                      { label: "Monthly", val: "MONTHLY" },
+                      { label: "3 Months", val: "3_MONTHS" },
+                      { label: "6 Months", val: "6_MONTHS" },
+                      { label: "Yearly", val: "YEARLY" },
+                      { label: "Toric (SPH+CYL)", val: "TORIC" },
+                    ];
+                  }
+
+                  return options.map((opt) => {
+                    const isActive = clDisp === opt.val;
+                    const params = new URLSearchParams();
+                    params.set("category", "contact-lenses");
+                    if (clType) params.set("cl_type", clType);
+                    if (clCat) params.set("cl_cat", clCat);
+                    if (!isActive) params.set("cl_disp", opt.val);
+
+                    return (
+                      <Link
+                        key={opt.val + opt.label}
+                        href={`/products?${params.toString()}`}
+                        className={`rounded-lg px-3 py-1 text-[0.72rem] font-medium transition-all duration-200 ${
+                          isActive
+                            ? "bg-blue-100 text-blue-800 border border-blue-300 font-semibold"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+                        }`}
+                      >
+                        {opt.label}
+                      </Link>
+                    );
+                  });
+                })()}
+              </div>
+            )}
           </div>
         )}
       </div>

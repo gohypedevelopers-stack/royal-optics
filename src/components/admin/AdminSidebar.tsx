@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { LayoutDashboard, Package, Shapes, ShoppingCart, IndianRupee, MessageSquareQuote, Users, FileText, Tag } from "lucide-react";
+import { LayoutDashboard, Package, Shapes, ShoppingCart, IndianRupee, MessageSquareQuote, Users, FileText, Tag, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -17,6 +17,7 @@ const links = [
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/blogs", label: "Blogs", icon: FileText },
+  { href: "/admin/change-password", label: "Change Password", icon: KeyRound },
 ];
 
 export default function AdminSidebar() {

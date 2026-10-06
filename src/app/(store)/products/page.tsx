@@ -81,7 +81,9 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
   };
 
-  if (subFilter) {
+  if (subFilter === "unisex") {
+    where.OR = [{ gender: "unisex" }, { gender: null }, { gender: "" }];
+  } else if (subFilter) {
     where.gender = subFilter;
   }
 
@@ -157,7 +159,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
         {(categorySlug === "sunglasses" || categorySlug === "eyeglasses") && (
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3 animate-in fade-in slide-in-from-top-2 duration-500">
-            {["Men", "Women", "Boy", "Girl"].map((subName) => {
+            {["Men", "Women", "Boy", "Girl", "Unisex"].map((subName) => {
               const subSlug = subName.toLowerCase();
               const isActive = subFilter === subSlug;
               return (

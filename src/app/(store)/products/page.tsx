@@ -6,6 +6,7 @@ import { ShoppingCart } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
 import { searchProductIds } from "@/lib/search";
+import { productGenderFilter } from "@/lib/product-genders";
 
 type SearchParamsInput = Record<string, string | string[] | undefined>;
 
@@ -81,10 +82,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
   };
 
-  if (subFilter === "unisex") {
-    where.OR = [{ gender: "unisex" }, { gender: null }, { gender: "" }];
-  } else if (subFilter) {
-    where.gender = subFilter;
+  if (subFilter) {
+    where.AND = productGenderFilter(subFilter);
   }
 
   if (clType) {

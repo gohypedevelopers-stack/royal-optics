@@ -140,7 +140,7 @@ export const productSchema = z.object({
   contactLensType: z.string().optional().nullable(),
   contactLensCategory: z.string().optional().nullable(),
   contactLensDisposability: z.string().optional().nullable(),
-  gender: z.string().optional().nullable(),
+  gender: z.string().regex(/^(?:(?:unisex|men|women|boy|girl)(?:,(?:unisex|men|women|boy|girl))*)?$/, "Select valid genders").optional().nullable(),
   status: z.enum(["DRAFT", "ACTIVE", "INACTIVE"]).default("ACTIVE"),
   isTrending: z.boolean().default(false),
   isFeatured: z.boolean().default(false),

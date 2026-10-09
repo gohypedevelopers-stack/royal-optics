@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { productSchema } from "@/lib/validators";
+import { genderOptions, parseProductGenders } from "@/lib/product-genders";
 import { toSlug } from "@/lib/admin";
 import { z } from "zod";
 import ImageUploader from "@/components/admin/ImageUploader";
@@ -75,6 +76,7 @@ export default function ProductForm({
   const customizationType = form.watch("customizationType");
   const contactLensType = form.watch("contactLensType");
   const contactLensCategory = form.watch("contactLensCategory");
+  const selectedGenders = parseProductGenders(form.watch("gender"));
 
   async function onSubmit(values: FormValues) {
     try {
@@ -249,17 +251,37 @@ export default function ProductForm({
           </div>
         )}
 
-          <div className="space-y-2">
-            <label htmlFor="product-gender" className="text-sm font-medium">Gender</label>
-            <select id="product-gender" className="ro-input h-10" {...form.register("gender")}>
-              <option value="">Unisex / None</option>
-              <option value="unisex">Unisex</option>
-              <option value="men">Men</option>
-              <option value="women">Women</option>
-              <option value="boy">Boy</option>
-              <option value="girl">Girl</option>
-            </select>
+        <fieldset className="space-y-2" aria-describedby="product-gender-help">
+          <legend className="text-sm font-medium">Gender</legend>
+          <div className="flex min-h-10 flex-wrap gap-x-4 gap-y-2 rounded-md border border-slate-300 p-3 dark:border-slate-700">
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={selectedGenders.length === 0}
+                onChange={() => form.setValue("gender", "", { shouldDirty: true, shouldValidate: true })}
+              />
+              None
+            </label>
+            {genderOptions.map(({ value, label }) => (
+              <label key={value} className="flex cursor-pointer items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={selectedGenders.includes(value)}
+                  onChange={(event) => {
+                    const next = event.target.checked
+                      ? [...selectedGenders, value]
+                      : selectedGenders.filter((gender) => gender !== value);
+                    form.setValue("gender", next.join(","), { shouldDirty: true, shouldValidate: true });
+                  }}
+                />
+                {label}
+              </label>
+            ))}
           </div>
+          <p id="product-gender-help" className="text-xs text-slate-500">
+            Select all that apply. None clears all gender selections.
+          </p>
+        </fieldset>
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Status</label>

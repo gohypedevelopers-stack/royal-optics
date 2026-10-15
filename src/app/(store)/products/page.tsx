@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { formatINR } from "@/lib/format";
 import { searchProductIds } from "@/lib/search";
 import { productGenderFilter } from "@/lib/product-genders";
+import { categoryFilterIds, productFilterHref } from "@/lib/product-filters";
 
 type SearchParamsInput = Record<string, string | string[] | undefined>;
 
@@ -14,43 +15,14 @@ function paramValue(input: string | string[] | undefined) {
   return Array.isArray(input) ? String(input[0] || "").trim() : String(input || "").trim();
 }
 
-function descendantIds(rootId: string, categories: Array<{ id: string; parentId: string | null }>) {
-  const queue = [rootId];
-  const visited = new Set<string>();
-  const ids: string[] = [];
-
-  while (queue.length) {
-    const current = queue.shift();
-    if (!current || visited.has(current)) continue;
-    visited.add(current);
-    ids.push(current);
-
-    for (const item of categories) {
-      if (item.parentId === current) queue.push(item.id);
-    }
-  }
-
-  return ids;
-}
-
-function ancestorIds(rootId: string, categories: Array<{ id: string; parentId: string | null }>) {
-  const byId = new Map(categories.map((item) => [item.id, item]));
-  const ids: string[] = [];
-  let current = byId.get(rootId);
-
-  while (current?.parentId) {
-    ids.push(current.parentId);
-    current = byId.get(current.parentId);
-  }
-
-  return ids;
-}
-
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<SearchParamsInput> }) {
   const resolvedSearchParams = await searchParams;
   const query = paramValue(resolvedSearchParams.q);
   const categorySlug = paramValue(resolvedSearchParams.category);
   const sort = paramValue(resolvedSearchParams.sort) || "relevance";
+  const requestedPage = Number(paramValue(resolvedSearchParams.page));
+  const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const pageSize = 12;
 
   const subFilter = paramValue(resolvedSearchParams.sub);
 
@@ -63,19 +35,13 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     select: { id: true, name: true, slug: true, parentId: true },
   });
 
-  let categoryIds: string[] | undefined;
-  if (categorySlug) {
-    const category = categories.find((item) => item.slug === categorySlug);
-    if (category) {
-      if (category.slug === "eyewear") {
-        categoryIds = [category.id];
-      } else {
-        categoryIds = descendantIds(category.id, categories);
-      }
-    } else {
-      categoryIds = [];
-    }
-  }
+  const categoryIds = categoryFilterIds(categorySlug, categories);
+  const filterHref = (updates: Record<string, string | null>) => productFilterHref(resolvedSearchParams, updates);
+  const categoryHref = (slug: string) => filterHref({
+    category: slug,
+    sub: ["sunglasses", "eyeglasses"].includes(slug) ? subFilter : null,
+    cl_type: null, cl_cat: null, cl_disp: null,
+  });
 
   const where: Prisma.ProductWhereInput = {
     status: "ACTIVE",
@@ -112,9 +78,16 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
   const products = await prisma.product.findMany({
     where,
-    include: { images: { orderBy: { sortOrder: "asc" } } },
-    orderBy,
+    select: {
+      id: true, slug: true, name: true, price: true, discount: true,
+      mainImage: true,
+      images: { select: { url: true, alt: true }, orderBy: { sortOrder: "asc" }, take: 1 },
+    },
+    orderBy: [...orderBy, { id: "asc" }],
+    skip: (page - 1) * pageSize,
+    take: pageSize + 1,
   });
+  const hasNextPage = products.length > pageSize;
 
   return (
     <div className="w-full px-2 py-6 md:px-3">
@@ -143,7 +116,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             return filterCategories.map((category) => (
               <Link
                 key={category.id}
-                href={`/products?category=${category.slug}`}
+                href={categoryHref(category.slug)}
                 className={`rounded-full px-5 py-2.5 text-[0.82rem] font-bold uppercase tracking-wider transition-all duration-300 ${
                   categorySlug === category.slug
                     ? "bg-slate-900 text-white shadow-[0_4px_12px_rgba(15,23,42,0.12)] border border-transparent"
@@ -164,7 +137,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
               return (
                 <Link
                   key={subSlug}
-                  href={isActive ? `/products?category=${categorySlug}` : `/products?category=${categorySlug}&sub=${subSlug}`}
+                  href={filterHref({ sub: isActive ? null : subSlug })}
                   className={`rounded-full px-5 py-2 text-[0.78rem] font-bold uppercase tracking-widest transition-all duration-300 ${
                     isActive
                       ? "bg-blue-600 text-white shadow-[0_4px_12px_rgba(37,99,235,0.25)] border border-transparent"
@@ -189,9 +162,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                 { label: "Contact Lenses Care", type: "CARE" },
               ].map((item) => {
                 const isActive = clType === item.type;
-                const href = item.type
-                  ? `/products?category=contact-lenses&cl_type=${item.type}`
-                  : `/products?category=contact-lenses`;
+                const href = filterHref({ cl_type: item.type, cl_cat: null, cl_disp: null });
                 return (
                   <Link
                     key={item.label}
@@ -217,9 +188,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                   { label: "Color Lenses", cat: "COLOR" },
                 ].map((item) => {
                   const isActive = clCat === item.cat;
-                  const href = item.cat
-                    ? `/products?category=contact-lenses&cl_type=POWER&cl_cat=${item.cat}`
-                    : `/products?category=contact-lenses&cl_type=POWER`;
+                  const href = filterHref({ cl_cat: item.cat, cl_disp: null });
                   return (
                     <Link
                       key={item.label}
@@ -271,7 +240,8 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                   } else {
                     options = [
                       { label: "Dailies", val: "DAILIES" },
-                      { label: "Weekly / 2 Weeks", val: "MONTHLY" },
+                      { label: "Weekly", val: "WEEKLY" },
+                      { label: "2 Weeks", val: "2_WEEKS" },
                       { label: "Monthly", val: "MONTHLY" },
                       { label: "3 Months", val: "3_MONTHS" },
                       { label: "6 Months", val: "6_MONTHS" },
@@ -282,16 +252,11 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
 
                   return options.map((opt) => {
                     const isActive = clDisp === opt.val;
-                    const params = new URLSearchParams();
-                    params.set("category", "contact-lenses");
-                    if (clType) params.set("cl_type", clType);
-                    if (clCat) params.set("cl_cat", clCat);
-                    if (!isActive) params.set("cl_disp", opt.val);
 
                     return (
                       <Link
                         key={opt.val + opt.label}
-                        href={`/products?${params.toString()}`}
+                        href={filterHref({ cl_disp: isActive ? null : opt.val })}
                         className={`rounded-lg px-3 py-1 text-[0.72rem] font-medium transition-all duration-200 ${
                           isActive
                             ? "bg-blue-100 text-blue-800 border border-blue-300 font-semibold"
@@ -313,7 +278,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         <p className="mt-8 text-center text-sm text-slate-500">No products found.</p>
       ) : (
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((product) => (
+          {products.slice(0, pageSize).map((product, index) => (
             <Link
               key={product.id}
               href={`/products/${product.slug}`}
@@ -323,11 +288,14 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                 {/* Image container */}
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-[radial-gradient(circle_at_top,#f8fafc,#f1f5f9)]">
                   <SafeImage
-                    src={product.mainImage || product.images[0]?.url || "/frame-square.png"}
+                    src={(product.mainImage || product.images[0]?.url || "").startsWith("data:")
+                      ? `/api/products/${product.id}/image`
+                      : product.mainImage || product.images[0]?.url || "/frame-square.png"}
                     alt={product.images[0]?.alt || product.name}
                     fill
+                    priority={index < 4}
                     quality={80}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 25vw, 25vw"
+                    sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 25vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                   />
                   <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white/90 via-white/40 to-transparent" />
@@ -363,6 +331,13 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
             </Link>
           ))}
         </div>
+      )}
+      {(page > 1 || hasNextPage) && (
+        <nav aria-label="Product pages" className="mt-8 flex items-center justify-center gap-5">
+          {page > 1 && <Link className="rounded-full border px-5 py-2" href={filterHref({ page: String(page - 1) })}>Previous</Link>}
+          <span className="text-sm text-slate-600">Page {page}</span>
+          {hasNextPage && <Link className="rounded-full border px-5 py-2" href={filterHref({ page: String(page + 1) })}>Next</Link>}
+        </nav>
       )}
     </div>
   );

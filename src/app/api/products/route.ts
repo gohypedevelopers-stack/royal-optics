@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { searchProductIds } from "@/lib/search";
+import { categoryFilterIds } from "@/lib/product-filters";
+import { productGenderFilter } from "@/lib/product-genders";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -18,19 +20,18 @@ export async function GET(request: Request) {
   const page = Math.max(1, Number(searchParams.get("page") || 1));
   const limit = Math.min(60, Math.max(1, Number(searchParams.get("limit") || 12)));
 
-  let categoryIds: string[] | undefined;
-  if (categorySlug) {
-    const category = await prisma.category.findUnique({ where: { slug: categorySlug }, select: { id: true } });
-    if (category) {
-      const children = await prisma.category.findMany({ where: { parentId: category.id }, select: { id: true } });
-      categoryIds = [category.id, ...children.map((child) => child.id)];
-    } else {
-      categoryIds = [];
-    }
-  }
+  const categories = categorySlug
+    ? await prisma.category.findMany({ select: { id: true, slug: true, parentId: true } })
+    : [];
+  const categoryIds = categoryFilterIds(categorySlug, categories);
+  const gender = searchParams.get("sub")?.trim() || "";
 
   const where: Prisma.ProductWhereInput = {
     status: "ACTIVE",
+    ...(gender ? { AND: productGenderFilter(gender) } : {}),
+    ...(searchParams.get("cl_type") ? { contactLensType: searchParams.get("cl_type")! } : {}),
+    ...(searchParams.get("cl_cat") ? { contactLensCategory: searchParams.get("cl_cat")! } : {}),
+    ...(searchParams.get("cl_disp") ? { contactLensDisposability: searchParams.get("cl_disp")! } : {}),
     ...(categoryIds ? { categoryId: { in: categoryIds } } : {}),
     ...(shape ? { shape: { equals: shape, mode: "insensitive" } } : {}),
     ...(color ? { colors: { has: color } } : {}),
